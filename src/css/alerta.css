@@ -1,0 +1,38 @@
+.alert-custom {
+    background-color: #333;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    color: white;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Animación suave */
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2); /* Sombra de texto */
+}
+
+.alert-custom.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.alert-success {
+    background-color: green !important;
+}
+
+.alert-error {
+    background-color: red !important;
+}
+.alert-success, .alert-error {
+    opacity: 1;
+}
+/* Estilos para dispositivos móviles */
+@media (max-width: 768px) {
+    .alert-custom {
+        right: auto; /* Desactivar el posicionamiento a la derecha */
+        left: 20px;  /* Posicionar a la izquierda */
+    }
+}

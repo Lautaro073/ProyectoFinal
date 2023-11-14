@@ -1,0 +1,115 @@
+
+/* Estilos base para que el footer quede al final */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Asegura que tome todo el alto del viewport */
+}
+
+.container {
+    flex: 1; /* Permite que el contenedor principal crezca y ocupe todo el espacio disponible */
+}
+
+.footer {
+    background-color: #000; /* Color oscuro de fondo */
+    color: white;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-top: 3px solid #FF4500; /* Línea naranja brillante en la parte superior */
+}
+
+.social-icons a {
+    margin: 0 10px;
+    font-size: 24px; /* Tamaño de los íconos */
+    transition: transform 0.3s ease;
+}
+
+.social-icons a:hover {
+    transform: scale(1.1); /* Efecto de "zoom" al pasar el mouse */
+    color: #25D366; /* Cambia si quieres otro color al hacer hover */
+}
+
+.copyright-text {
+    margin-top: 20px;
+    font-size: 14px;
+}
+.social-icons {
+    margin-bottom: 15px !important;
+}
+
+.social-icons a {
+    margin: 0 15px !important;
+    font-size: 28px !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease !important;
+}
+
+.social-icons a:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.social-icons a[href*="facebook"]:hover {
+    color: #1877F2 !important;
+}
+
+.social-icons a[href*="instagram"]:hover {
+    color: #E4405F !important;
+}
+.main-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .main-content {
+    flex: 1;
+  }
+  
+  .footer {
+    flex-shrink: 0;
+  }
+  
+/* Estilo base para el ícono de Facebook */
+.fab.fa-facebook-square {
+    color: white;  /* Color base */
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.fab.fa-facebook-square:hover {
+    color: #1877F2;  /* Color de Facebook al hacer hover */
+    transform: translateY(-3px);  /* Efecto levantamiento al hacer hover */
+}
+
+/* Estilo base para el ícono de Instagram */
+.fab.fa-instagram {
+    color: white;  /* Color base */
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.fab.fa-instagram:hover {
+    color: #E4405F;  /* Color de Instagram al hacer hover */
+    transform: translateY(-3px);  /* Efecto levantamiento al hacer hover */
+}
+@media only screen and (max-width: 768px) {
+    /* Estilos para el ícono de Facebook en móvil */
+    .fab.fa-facebook-square {
+        font-size: 40px;  /* Reducir el tamaño del ícono en dispositivos móviles */
+        margin: 0 10px;   /* Ajustar el margen si es necesario */
+    }
+
+    .fab.fa-facebook-square:hover {
+        transform: scale(1.1);  /* Efecto zoom al hacer hover, puedes ajustarlo según prefieras */
+    }
+
+    /* Estilos para el ícono de Instagram en móvil */
+    .fab.fa-instagram {
+        font-size: 40px;  /* Reducir el tamaño del ícono en dispositivos móviles */
+        margin: 0 10px;   /* Ajustar el margen si es necesario */
+    }
+
+    .fab.fa-instagram:hover {
+        transform: scale(1.1);  /* Efecto zoom al hacer hover, puedes ajustarlo según prefieras */
+    }
+}
