@@ -19,6 +19,7 @@
 /* Mostrar siempre el botón toggler */
 .custom-navbar .navbar-toggler {
   display: block !important;
+  margin-right: 10px;
 }
 
 .form-inputs button {

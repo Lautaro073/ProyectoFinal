@@ -1,90 +1,27 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Link } from "react-router-dom";
-import "../../css/nav.css";
 import logo from "../../assets/logo.png";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import SearchResults from "./SearchResults";
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
+import "../../css/nav.css";
+import { useCarrito } from "../../Context/CarritoContext";
 
 function NavbarPrincipal() {
-  const [cantidadProductos, setCantidadProductos] = useState(0);
-  const [totalCarrito, setTotalCarrito] = useState(0);
-
-  const obtenerUserIdActual = () => {
-    return localStorage.getItem("sessionId"); // Corregir el nombre a "sessionId"
-  };
-
-  const [userId, setUserId] = useState(obtenerUserIdActual());
-  console.log("UserID:", userId);
-  const actualizarCarrito = async (userId) => {
-    try {
-      const response = await axios.get(
-        `carrito/${userId}`
-      );
-      const productos = response.data;
-      const cantidad = productos.length;
-      let total = 0;
-      productos.forEach((item) => {
-        total += item.precio * item.cantidad;
-      });
-      setCantidadProductos(cantidad);
-      setTotalCarrito(total);
-    } catch (error) {
-      console.error("Error al obtener el carrito", error);
-    }
-  };
-
-  useEffect(() => {
-    const userId = obtenerUserIdActual();
-    if (userId) {
-      actualizarCarrito(userId);
-    }
-  }, []);
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const updatedUserId = obtenerUserIdActual();
-      if (updatedUserId !== userId) {
-        setUserId(updatedUserId);
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
-    if (userId) {
-      axios
-        .get(`carrito/${userId}`)
-        .then((response) => {
-          console.log("Respuesta del servidor:", response.data);
-          const productos = response.data;
-          const cantidad = productos.length;
-          let total = 0;
-          productos.forEach((item) => {
-            total += item.precio * item.cantidad;
-          });
-          const userId = obtenerUserIdActual();
-          if (userId) {
-            actualizarCarrito(userId);
-          }
-          setCantidadProductos(cantidad);
-          setTotalCarrito(total);
-        })
-        .catch((error) => {
-          console.error("Error al obtener el carrito", error);
-        });
-    }
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, [userId]);
-
   const [search, setSearch] = useState("");
-  const [productos, setProductos] = useState([]); // Definición del estado productos
+  const [productos, setProductos] = useState([]);
   const [showResults, setShowResults] = useState(false);
 
+  const { cantidadProductos, totalCarrito, actualizarCarrito } = useCarrito(); // Usa el contexto
+
+  useEffect(() => {
+    actualizarCarrito();
+  }, []); // Elimina la dependencia a userId
+
+  // Búsqueda de productos
   const handleSearch = (e) => {
     e.preventDefault();
     window.location.href = `/buscar?search=${search}`;
@@ -104,7 +41,7 @@ function NavbarPrincipal() {
       <div className="container-fluid">
         <div className="row p-2 pt-3 pb-3 d-flex align-items-center">
           <div className="col-4 col-md-2">
-            <Link to="/inicio" className="nav-link logo">
+            <Link to="/" className="nav-link logo">
               <img
                 src={logo}
                 className="img-fluid d-flex"
@@ -177,7 +114,7 @@ function NavbarCategorias({ children }) {
 
   return (
     <>
-    <Navbar className="navbar navbar-dark bg-black custom-navbar" expand="lg">
+    <Navbar className="navbar navbar-dark bg-black custom-navbar " expand="lg">
     <Navbar.Brand>Categorias</Navbar.Brand>
     <Navbar.Toggle bg="dark" aria-controls="basic-navbar-nav" />
     <Navbar.Collapse id="basic-navbar-nav">

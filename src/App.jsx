@@ -11,10 +11,12 @@ import Login from "./pages/Login";
 import CargarProductos from "./pages/cargarProductos";
 import SearchPage from "./components/Navegacion/SearchPage";
 import ProductosPorCategoria from "./components/Navegacion/ProductosPorCategoria";
+import PageNotFound from './pages/PageNotFound'
 //import ProductosPorCategoria from './components/ProductoPorCategoria';
 import Footer from "./components/Footer/inicio"
 import { BrowserRouter  as Router, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
+import { CarritoProvider } from "./Context/CarritoContext";
 import axios from "axios";
 import PrivateRoute from './PrivateRoute'; // Asegúrate de poner la ruta correcta al componente.
 import './css/alerta.css'
@@ -45,27 +47,7 @@ function App() {
 
 
 
-  const agregarAlCarrito = async (id_producto, cantidad = 1) => {
-    try {
-      const sessionId = localStorage.getItem("sessionId");
 
-      // Si por alguna razón no tienes un sessionId, lo mejor sería parar la función aquí.
-      if (!sessionId) {
-        showAlert("Error al obtener la sesión. Por favor, refresca la página.", "error");
-        return;
-      }
-      console.log(`Enviando petición al carrito con ID: ${sessionId}`);
-
-      await axios.post(`carrito/${sessionId}`, {
-        id_producto,
-        cantidad,
-      });
-
-      showAlert("Producto agregado al carrito!", "success");
-    } catch (error) {
-      console.error("Error al agregar al carrito:", "error");
-    }
-  };
   useEffect(() => {
     let currentSessionId = localStorage.getItem("sessionId");
     console.log("Sesión ID actual:", currentSessionId);
@@ -135,17 +117,38 @@ function App() {
             });
     }
   }, []);*/
+  const agregarAlCarrito = async (id_producto, cantidad = 1) => {
+    try {
+      const sessionId = localStorage.getItem("sessionId");
 
+      // Si por alguna razón no tienes un sessionId, lo mejor sería parar la función aquí.
+      if (!sessionId) {
+        showAlert("Error al obtener la sesión. Por favor, refresca la página.", "error");
+        return;
+      }
+      console.log(`Enviando petición al carrito con ID: ${sessionId}`);
+
+      await axios.post(`carrito/${sessionId}`, {
+        id_producto,
+        cantidad,
+      });
+
+      showAlert("Producto agregado al carrito!", "success");
+    } catch (error) {
+      console.error("Error al agregar al carrito:", "error");
+    }
+  };
   return (
+    <CarritoProvider>
     <Router>
     <Navegacion />
     
     <Routes>
-      <Route path="/" element={<Inicio agregarAlCarrito={agregarAlCarrito} />} />
+      <Route path="/" element={<Inicio  />} />
       
         <Route
           path="/producto/:id"
-          element={<Producto agregarAlCarrito={agregarAlCarrito} />}
+          element={<Producto  />}
         />
         <Route path="/carrito" element={<Carrito />} />
         <Route path="/checkout" element={<Checkout />} />
@@ -154,22 +157,23 @@ function App() {
         <Route path="/checkout/exito" element={<Checkoutexito />} />
         <Route
           path="/productos"
-          element={<ListaProductos agregarAlCarrito={agregarAlCarrito} />}
+          element={<ListaProductos  />}
         />
-        <Route path="/categoria/:categoria" element={<ProductosPorCategoria agregarAlCarrito={agregarAlCarrito} />}  />
+        <Route path="/categoria/:categoria" element={<ProductosPorCategoria />}  />
 
         <Route
           path="/buscar"
-          element={<SearchPage agregarAlCarrito={agregarAlCarrito} />}
+          element={<SearchPage />}
         />
        <Route path="/login" element={<Login />} />
         <Route path="/login" element={<PrivateRoute />}>
             <Route path="cargarProductos" element={<CargarProductos />} />
         </Route>
-        <Route path="*" element={<Inicio agregarAlCarrito={agregarAlCarrito} />} /> {/* Esto captura cualquier ruta no definida */}
+        <Route path="*" element={<PageNotFound />} /> {/* Esto captura cualquier ruta no definida */}
       </Routes>
       <Footer/>
     </Router>
+    </CarritoProvider>
   );
 }
 

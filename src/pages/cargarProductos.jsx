@@ -35,7 +35,7 @@ function CargarProducto() {
   const [stock, setStock] = useState(0);
   const [productoId, setProductoId] = useState(null);
   const [productoSeleccionado, setProductoSeleccionado] = useState("");
- 
+  const [talle, setTalle] = useState(""); // Estado para el talle
   useEffect(() => {
     const obtenerCategorias = async () => {
       try {
@@ -59,18 +59,26 @@ function CargarProducto() {
     formData.append("precio", precio);
     formData.append("id_categoria", idCategoria);
     formData.append("stock", stock);
+    formData.append("talle", talle); // Asegúrate de incluir el talle
+
     if (imagen) {
-      formData.append("imagen", imagen, imagen.name);
+        formData.append("imagen", imagen, imagen.name);
     }
 
     try {
-      await axios.post("https://pesadillabandidos.repl.co/api/productos", formData);
-      showAlert("Producto agregado correctamente", "success");
+        const response = await axios.post("productos", formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        showAlert("Producto agregado correctamente", "success");
+        // Aquí puedes limpiar los campos del formulario si lo deseas
     } catch (error) {
-      console.error("Hubo un error al cargar el producto:", error);
-      showAlert("Error al agregar el producto", "error");
+        console.error("Hubo un error al cargar el producto:", error);
+        showAlert("Error al agregar el producto", "error");
     }
-  };
+};
+
   const handleUpdate = async () => {
     const formData = new FormData();
     formData.append("nombre", nombreProducto);
@@ -162,6 +170,17 @@ function CargarProducto() {
           />
         </div>
         <div className="mb-3">
+                    <label className="form-label">Talle</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        value={talle}
+                        onChange={(e) => setTalle(e.target.value)}
+                        placeholder="Agregar talles ej: M, XL, XXL"
+                        required
+                    />
+                </div>
+        <div className="mb-3">
           <label className="form-label">Precio</label>
           <input
             type="number"
@@ -188,8 +207,8 @@ function CargarProducto() {
             required
           >
             {categorias.map((categoria) => (
-              <option
-              className=""
+              <option className="bg-dark"
+              
                 key={categoria.id_categoria}
                 value={categoria.id_categoria}
               >
@@ -228,19 +247,19 @@ function CargarProducto() {
             ))}
           </select>
         </div>
-        <button type="submit" className="btn btn-primary">
+        <button type="submit" className="btn btn-primary m-2">
           Cargar Producto
         </button>
        
         <button
           type="button"
           onClick={handleUpdate}
-          className="btn btn-secondary "
+          className="btn btn-secondary m-2"
         >
           Actualizar Producto
         </button>
        
-        <button type="button" onClick={handleDelete} className="btn btn-danger">
+        <button type="button" onClick={handleDelete} className="btn btn-danger m-2">
           Eliminar Producto
         </button>
         

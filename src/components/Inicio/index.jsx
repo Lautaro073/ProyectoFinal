@@ -1,53 +1,49 @@
-import Carrusel from "./carrusel";
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { useCarrito } from "../../Context/CarritoContext"; // Asegúrate de usar la ruta correcta
+import Carrusel from "./carrusel";
 
-function Inicio(props) {
+function Inicio() {
+  const { agregarAlCarrito } = useCarrito(); // Obtiene agregarAlCarrito del contexto
+
   const generarLinkWhatsApp = (nombreProducto) => {
     const numero = "+5491126009633";
     const base = "https://api.whatsapp.com/send?phone=";
-    const mensaje = `Hola! Me gustaría saber mas sobre este producto: ${nombreProducto}`;
+    const mensaje = `Hola! Me gustaría saber más sobre este producto: ${nombreProducto}`;
     return `${base}${numero}&text=${encodeURIComponent(mensaje)}`;
   };
 
-  const { id } = useParams();
+  const { id } = useParams(); // Obtiene el ID de la categoría de la URL
   const [productos, setProductos] = useState([]);
   const [categoriaNombre, setCategoriaNombre] = useState("Todos los productos");
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  const { agregarAlCarrito } = props;
 
   const limit = window.innerWidth <= 768 ? 10 : 15;
 
-  // Este useEffect se activará cuando el ID de categoría cambie
   useEffect(() => {
-    setOffset(0); // Restablecer offset
-    setHasMore(true); // Asumir que hay más productos hasta que se demuestre lo contrario
-    setProductos([]); // Limpiar productos anteriores
+    setOffset(0); // Restablece el offset
+    setHasMore(true); // Asume que hay más productos hasta que se demuestre lo contrario
+    setProductos([]); // Limpia productos anteriores
   }, [id]);
 
   useEffect(() => {
     async function obtenerProductos() {
       let url = `productos?limit=${limit}&offset=${offset}`;
-
       if (id) {
         url += `&categoria=${id}`;
       }
 
       try {
         const response = await axios.get(url);
-
         if (response.data.length < limit) {
           setHasMore(false);
         } else {
-          setHasMore(true); // Asegurarse de que el botón de "Mostrar más" permanezca activo si hay más productos
+          setHasMore(true);
         }
 
-        // Concatenar los nuevos productos al final del array existente
         setProductos((prevProductos) => [...prevProductos, ...response.data]);
-
-        // Establecer el nombre de la categoría
         if (response.data[0]) {
           setCategoriaNombre(response.data[0].nombre_categoria);
         } else {

@@ -1,4 +1,4 @@
 // config.js
 import axios from 'axios';
 
-axios.defaults.baseURL = 'https://pesadillabandidos.repl.co/api/';
+axios.defaults.baseURL = 'http://localhost:3000/api/';

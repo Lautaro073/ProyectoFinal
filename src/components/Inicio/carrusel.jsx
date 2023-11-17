@@ -1,10 +1,10 @@
 import '../../css/Carrusel.css'
 import inst1 from '../../assets/photo_2023-07-28_20-16-17.jpg'
-import inst2 from '../../assets/envio.jpg'
-import inst3 from '../../assets/pago.jpg'
+import inst2 from '../../assets/photo_2023-07-28_20-16-17.jpg'
+import inst3 from '../../assets/photo_2023-07-28_20-16-17.jpg'
 import inst4 from '../../assets/photo_2023-07-28_20-16-17.jpg'
-import inst5 from '../../assets/envio.jpg'
-import inst6 from '../../assets/pago.jpg'
+import inst5 from '../../assets/photo_2023-07-28_20-16-17.jpg'
+import inst6 from '../../assets/photo_2023-07-28_20-16-17.jpg'
 function Carrusel(){
     return(
         <>

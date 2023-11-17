@@ -1,8 +1,11 @@
 // SearchPage.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useCarrito } from "../../Context/CarritoContext";
+function SearchPage() {
+  const { agregarAlCarrito } = useCarrito(); // Obtiene agregarAlCarrito del contexto
 
-function SearchPage({ agregarAlCarrito }) {
+ 
   const generarLinkWhatsApp = (nombreProducto) => {
     const numero = "+5491126009633";
     const base = "https://api.whatsapp.com/send?phone=";
@@ -47,9 +50,7 @@ function SearchPage({ agregarAlCarrito }) {
                     <div className="card-actions">
                       <button
                         className="btnn btn-primary"
-                        onClick={() =>
-                          agregarAlCarrito(producto.id_producto, 1)
-                        }
+                        onClick={() => agregarAlCarrito(producto.id_producto, 1)}
                       >
                         Agregar al Carrito
                       </button>
