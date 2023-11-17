@@ -1,7 +1,8 @@
 const express = require('express');
 const db = require('../database');
 const path = require('path');
-const fs = require('fs');
+// Importar el módulo 'fs' para leer archivos
+const fs = require('fs').promises;
 const router = express.Router();
 const verifyAdmin = require('../middlewares/middlewares');
 
@@ -21,21 +22,34 @@ router.get('/:id/stock', async (req, res) => {
         res.status(500).json({ error: "Error fetching stock" });
     }
 });
-// Obtener todos los productos
+
+// Obtener todos los productos con imagen
 router.get('/', async (req, res) => {
-    // Paso 1: Captura los parámetros de la consulta
-    const limit = req.query.limit ? parseInt(req.query.limit) : 15; // Valor predeterminado es 15
-    const offset = req.query.offset ? parseInt(req.query.offset) : 0; // Valor predeterminado es 0
+    const limit = req.query.limit ? parseInt(req.query.limit) : 15;
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
 
     try {
-        // Paso 3: Usa los valores limit y offset en tu consulta SQL
-        const [rows] = await db.query('SELECT * FROM Productos LIMIT ? OFFSET ?', [limit, offset]);
-        res.json(rows);
+        const [rows] = await db.query(`
+            SELECT Productos.*, Imagenes.mime, Imagenes.contenido 
+            FROM Productos 
+            LEFT JOIN Imagenes ON Productos.id_imagen = Imagenes.id 
+            LIMIT ? OFFSET ?
+        `, [limit, offset]);
+
+        const productosConImagen = rows.map(row => {
+            return {
+                ...row,
+                imagen: row.contenido ? `data:${row.mime};base64,${Buffer.from(row.contenido).toString('base64')}` : null
+            };
+        });
+
+        res.json(productosConImagen);
     } catch (error) {
         console.error(error);
         res.status(500).send('Error al obtener los productos');
     }
 });
+
 // obtener todos los productos sin restricciones
 router.get('/all', async (req, res) => {
     try {
@@ -46,15 +60,28 @@ router.get('/all', async (req, res) => {
         res.status(500).send('Error al obtener todos los productos');
     }
 });
-// Búsqueda de productos por término
+// Búsqueda de productos por término, incluyendo imágenes
 router.get('/search', async (req, res) => {
     const searchTerm = req.query.search;
     if (!searchTerm) {
         return res.status(400).json({ error: "Debe proporcionar un término de búsqueda." });
     }
     try {
-        const [rows] = await db.query('SELECT * FROM Productos WHERE nombre LIKE ?', [`%${searchTerm}%`]);
-        res.json(rows);
+        const [rows] = await db.query(`
+            SELECT Productos.*, Imagenes.mime, Imagenes.contenido 
+            FROM Productos 
+            LEFT JOIN Imagenes ON Productos.id_imagen = Imagenes.id 
+            WHERE Productos.nombre LIKE ?
+        `, [`%${searchTerm}%`]);
+
+        const productosConImagen = rows.map(row => {
+            return {
+                ...row,
+                imagen: row.contenido ? `data:${row.mime};base64,${Buffer.from(row.contenido).toString('base64')}` : null
+            };
+        });
+
+        res.json(productosConImagen);
     } catch (error) {
         console.error("Error en la búsqueda:", error);
         res.status(500).send('Error al buscar los productos');
@@ -62,29 +89,39 @@ router.get('/search', async (req, res) => {
 });
 
 
-// Obtener un producto por ID
+
+// Obtener un producto por ID con imagen
 router.get('/:id', async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM Productos WHERE id_producto = ?', [req.params.id]);
-        if (rows.length === 0) return res.status(404).send('Producto no encontrado');
-        res.json(rows[0]);
+        const [rows] = await db.query(`
+            SELECT Productos.*, Imagenes.mime, Imagenes.contenido 
+            FROM Productos 
+            LEFT JOIN Imagenes ON Productos.id_imagen = Imagenes.id 
+            WHERE Productos.id_producto = ?
+        `, [req.params.id]);
+
+        if (rows.length > 0) {
+            const producto = {
+                ...rows[0],
+                imagen: rows[0].contenido ? `data:${rows[0].mime};base64,${Buffer.from(rows[0].contenido).toString('base64')}` : null
+            };
+            res.json(producto);
+        } else {
+            res.status(404).send('Producto no encontrado');
+        }
     } catch (error) {
         console.error(error);
         res.status(500).send('Error al obtener el producto');
     }
 });
-// Función para mover archivos de forma promisificada
-const moveFile = (file, dest) => new Promise((resolve, reject) => {
-    file.mv(dest, (err) => {
-        if (err) reject(err);
-        else resolve();
-    });
-});
+
+
 
 // Agregar un nuevo producto
 router.post('/', async (req, res) => {
     try {
-        const { nombre, descripcion, precio, id_categoria, stock } = req.body;
+        // Datos del producto
+        const { nombre, descripcion, precio, id_categoria, stock, talle } = req.body;
 
         if (!req.files || !req.files.imagen) {
             return res.status(400).send('No se subió el archivo de imagen.');
@@ -98,39 +135,37 @@ router.post('/', async (req, res) => {
             return res.status(400).send('Formato de archivo no permitido.');
         }
 
-        const filename = uploadedFile.name;
-        const absolutePath = path.join(__dirname, '../../public/assets/imgProductos', filename);
-        const relativePath = '/assets/imgProductos/' + filename;
+        // Convertir la imagen a un buffer
+        const imageBuffer = uploadedFile.data;
+        const imageName = uploadedFile.name;
+        const imageMime = uploadedFile.mimetype;
 
-        // Asegúrate de que la carpeta exista
-        const dirPath = path.dirname(absolutePath);
-        if (!fs.existsSync(dirPath)) {
-            fs.mkdirSync(dirPath, { recursive: true });
-        }
+        // Insertar la imagen en la tabla de imágenes
+        const [imageResult] = await db.query('INSERT INTO Imagenes (contenido, mime, nombre) VALUES (?, ?, ?)', [imageBuffer, imageMime, imageName]);
+        const imageId = imageResult.insertId;
 
-        console.log("Ruta absoluta:", absolutePath);
-        console.log("Ruta relativa:", relativePath);
-
-        // Mover el archivo
-        await moveFile(uploadedFile, absolutePath);
-
-        // Guardar en la base de datos
-        await db.query('INSERT INTO Productos (nombre, descripcion, precio, id_categoria, imagen, stock) VALUES (?, ?, ?, ?, ?, ?)', [nombre, descripcion, precio, id_categoria, relativePath, stock]);
+        // Insertar datos del producto en la tabla de productos
+        await db.query('INSERT INTO Productos (nombre, descripcion, precio, id_categoria, stock, talle, id_imagen) VALUES (?, ?, ?, ?, ?, ?, ?)', [nombre, descripcion, precio, id_categoria, stock, talle, imageId]);
 
         res.status(201).send('Producto agregado correctamente');
-
     } catch (error) {
-        console.error(error);
+        console.error('Error al agregar el producto:', error);
         res.status(500).send('Error al agregar el producto');
     }
 });
 
 
+
 // Actualizar un producto
 router.put('/:id', verifyAdmin, async (req, res) => {
     try {
-        const { nombre, descripcion, precio, id_categoria, stock } = req.body;
-        
+        const { nombre, descripcion, precio, id_categoria, stock, talle } = req.body;
+        const productoId = req.params.id;
+
+        // Obtener el id de la imagen actual del producto
+        const [currentProduct] = await db.query('SELECT id_imagen FROM Productos WHERE id_producto = ?', [productoId]);
+        const currentImageId = currentProduct[0].id_imagen;
+
         if (req.files && req.files.imagen) {
             let uploadedFile = req.files.imagen;
             const fileTypes = /jpeg|jpg|png|gif/;
@@ -140,32 +175,46 @@ router.put('/:id', verifyAdmin, async (req, res) => {
                 return res.status(400).send('Formato de archivo no permitido.');
             }
 
-            const absolutePath = path.join(__dirname, '../../public/assets/imgProductos', uploadedFile.name);
-            const relativePath = '/assets/imgProductos/' + uploadedFile.name;
+            // Convertir la imagen a un buffer
+            const imageBuffer = uploadedFile.data;
+            const imageName = uploadedFile.name;
+            const imageMime = uploadedFile.mimetype;
 
-            uploadedFile.mv(absolutePath, async (err) => {
-                if (err) return res.status(500).send(err);
-                await db.query('UPDATE Productos SET nombre = ?, descripcion = ?, precio = ?, id_categoria = ?, imagen = ?, stock = ? WHERE id_producto = ?', [nombre, descripcion, precio, id_categoria, relativePath, stock, req.params.id]);
-                res.send('Producto actualizado correctamente');
-            });
-        } else {
-            await db.query('UPDATE Productos SET nombre = ?, descripcion = ?, precio = ?, id_categoria = ?, stock = ? WHERE id_producto = ?', [nombre, descripcion, precio, id_categoria, stock, req.params.id]);
-            res.send('Producto actualizado correctamente');
+            // Actualizar la imagen en la base de datos
+            await db.query('UPDATE Imagenes SET contenido = ?, mime = ?, nombre = ? WHERE id = ?', [imageBuffer, imageMime, imageName, currentImageId]);
         }
+
+        // Actualizar los datos del producto
+        await db.query('UPDATE Productos SET nombre = ?, descripcion = ?, precio = ?, id_categoria = ?, stock = ?, talle = ? WHERE id_producto = ?', [nombre, descripcion, precio, id_categoria, stock, talle, productoId]);
+
+        res.send('Producto actualizado correctamente');
     } catch (error) {
-        console.error(error);
+        console.error('Error al actualizar el producto:', error);
         res.status(500).send('Error al actualizar el producto');
     }
 });
 
 
+
+
 // Eliminar un producto
-router.delete('/:id',verifyAdmin, async (req, res) => {
+router.delete('/:id', verifyAdmin, async (req, res) => {
     try {
-        await db.query('DELETE FROM Productos WHERE id_producto = ?', [req.params.id]);
+        const productoId = req.params.id;
+
+        // Obtener el id de la imagen asociada con el producto
+        const [productData] = await db.query('SELECT id_imagen FROM Productos WHERE id_producto = ?', [productoId]);
+        const imageId = productData[0].id_imagen;
+
+        // Eliminar el producto
+        await db.query('DELETE FROM Productos WHERE id_producto = ?', [productoId]);
+
+        // Eliminar la imagen asociada
+        await db.query('DELETE FROM Imagenes WHERE id = ?', [imageId]);
+
         res.send('Producto eliminado correctamente');
     } catch (error) {
-        console.error(error);
+        console.error('Error al eliminar el producto:', error);
         res.status(500).send('Error al eliminar el producto');
     }
 });

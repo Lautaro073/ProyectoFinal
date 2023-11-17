@@ -52,22 +52,31 @@ router.get('/:id_categoria', async (req, res) => {
 router.get('/categoria/:nombre_categoria', async (req, res) => {
     try {
         const [rows] = await db.query(`
-        SELECT p.* 
-        FROM Productos p
-        JOIN Categorias c ON p.id_categoria = c.id_categoria
-        WHERE c.nombre_categoria =?`, 
-            [req.params.nombre_categoria]
-        );
-        if (rows.length === 0) {
+            SELECT Productos.*, Imagenes.mime, Imagenes.contenido 
+            FROM Productos 
+            LEFT JOIN Imagenes ON Productos.id_imagen = Imagenes.id 
+            JOIN Categorias ON Productos.id_categoria = Categorias.id_categoria
+            WHERE Categorias.nombre_categoria = ?
+        `, [req.params.nombre_categoria]);
+
+        const productosConImagen = rows.map(row => {
+            return {
+                ...row,
+                imagen: row.contenido ? `data:${row.mime};base64,${Buffer.from(row.contenido).toString('base64')}` : null
+            };
+        });
+
+        if (productosConImagen.length === 0) {
             res.status(404).send('No se encontraron productos para esta categoría');
         } else {
-            res.json(rows);
+            res.json(productosConImagen);
         }
     } catch (error) {
         console.error(error);
         res.status(500).send('Error al obtener productos por categoría');
     }
 });
+
 
 
 
