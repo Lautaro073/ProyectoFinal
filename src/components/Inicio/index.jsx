@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { useCarrito } from "../../Context/CarritoContext"; // Asegúrate de usar la ruta correcta
+import { useCarrito } from "../../Context/CarritoContext";
 import Carrusel from "./carrusel";
+import CustomModal from "../../components/Inicio/CustomModal"; // Asegúrate de importar el componente CustomModal
 
 function Inicio() {
-  const { agregarAlCarrito } = useCarrito(); // Obtiene agregarAlCarrito del contexto
+  const { agregarAlCarrito } = useCarrito();
+  const { id } = useParams();
+  const [productos, setProductos] = useState([]);
+  const [categoriaNombre, setCategoriaNombre] = useState("Todos los productos");
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const limit = window.innerWidth <= 768 ? 10 : 15;
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const generarLinkWhatsApp = (nombreProducto) => {
     const numero = "+5491126009633";
@@ -14,18 +23,10 @@ function Inicio() {
     return `${base}${numero}&text=${encodeURIComponent(mensaje)}`;
   };
 
-  const { id } = useParams(); // Obtiene el ID de la categoría de la URL
-  const [productos, setProductos] = useState([]);
-  const [categoriaNombre, setCategoriaNombre] = useState("Todos los productos");
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-
-  const limit = window.innerWidth <= 768 ? 10 : 15;
-
   useEffect(() => {
-    setOffset(0); // Restablece el offset
-    setHasMore(true); // Asume que hay más productos hasta que se demuestre lo contrario
-    setProductos([]); // Limpia productos anteriores
+    setOffset(0);
+    setHasMore(true);
+    setProductos([]);
   }, [id]);
 
   useEffect(() => {
@@ -57,6 +58,16 @@ function Inicio() {
     obtenerProductos();
   }, [id, offset]);
 
+  const openModal = (product) => {
+    setSelectedProduct(product);
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedProduct(null);
+    setModalIsOpen(false);
+  };
+
   return (
     <>
       <Carrusel />
@@ -65,7 +76,7 @@ function Inicio() {
         <div className="row">
           {productos.map((producto) => (
             <div key={producto.id_producto} className="col-md-4 mb-4">
-              <div className="card">
+              <div className="card" onClick={() => openModal(producto)}>
                 <div className="card-img-container">
                   <img src={producto.imagen} alt={producto.nombre} />
                 </div>
@@ -77,7 +88,10 @@ function Inicio() {
                   <div className="card-actions">
                     <button
                       className="btnn btn-primary"
-                      onClick={() => agregarAlCarrito(producto.id_producto, 1)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        agregarAlCarrito(producto.id_producto, 1);
+                      }}
                     >
                       Agregar al Carrito
                     </button>
@@ -107,6 +121,12 @@ function Inicio() {
           </div>
         )}
       </div>
+      <CustomModal
+        isOpen={modalIsOpen}
+        closeModal={closeModal}
+        product={selectedProduct}
+        agregarAlCarrito={agregarAlCarrito}
+      />
     </>
   );
 }

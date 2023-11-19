@@ -199,7 +199,8 @@ function Carrito() {
                     >
                       +
                     </button>
-
+                  
+                  {/*talle*/}
                     <div className="badge bg-primary rounded-pill ml-3">
                       ${producto.precio * producto.cantidad}
                     </div>

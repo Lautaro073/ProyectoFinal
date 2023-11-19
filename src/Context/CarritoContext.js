@@ -5,6 +5,27 @@ import axios from 'axios';
 const CarritoContext = createContext();
 
 export const useCarrito = () => useContext(CarritoContext);
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert-custom alert-${type}`;
+    alertDiv.textContent = message;
+
+    document.body.appendChild(alertDiv);
+
+    // Dar un pequeño tiempo para que la alerta inicialice y luego agregar la clase 'show'
+    setTimeout(() => {
+        alertDiv.classList.add('show');
+    }, 10);
+
+    // Después de 3 segundos, remover la alerta
+    setTimeout(() => {
+        alertDiv.classList.remove('show');
+        // Esperamos que termine la transición de salida y luego eliminamos el elemento del DOM
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 310); // 10 ms adicionales para asegurarnos de que la transición ha terminado
+    }, 3000);
+}
 
 export const CarritoProvider = ({ children }) => {
   const [cantidadProductos, setCantidadProductos] = useState(0);
@@ -32,7 +53,9 @@ export const CarritoProvider = ({ children }) => {
     }
     try {
       await axios.post(`carrito/${userId}`, { id_producto, cantidad });
-      await actualizarCarrito(); // Actualiza el estado del carrito después de agregar un ítem
+     
+     await actualizarCarrito(); // Actualiza el estado del carrito después de agregar un ítem
+     showAlert("Producto agregado al carrito!", "success");
     } catch (error) {
       console.error("Error al agregar al carrito:", error);
     }
