@@ -37,6 +37,7 @@
   transition: transform 0.3s;
   border: 1px solid #ddd;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
 }
 
 .card:hover {
@@ -45,7 +46,7 @@
 
 .card img {
   width: 100%;
-  height: 200px;
+  height: 400px;
   object-fit: cover;
 }
 
@@ -70,18 +71,20 @@
   margin-bottom: 15px; /* Ajusta el margen para evitar que se superponga con otros elementos */
 }
 
-@media screen and (max-width: 767px) {
+@media (max-width: 768px) {
   .card-title {
     font-size: 16px;
   }
 }
-
-/* Estilos de los botones */
-.btnn {
-  margin-right: 3px; /* en lugar de 5px.*/
+.card-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; /* Centra horizontalmente */
 }
-
+/* Estilos de los botones */
 button.btnn {
+  width: 100%;
   background-color: #ff4500;
   color: #fff;
   border: none;
@@ -89,12 +92,12 @@ button.btnn {
   border-radius: 5px;
   cursor: pointer;
   align-self: flex-end;
-  flex: 1; /* Esto hará que el botón "Agregar al Carrito" ocupe todo el espacio disponible */
-  margin-right: 5px;
   padding: 5px 10px;
-   font-size: 14px; /* Añade un pequeño margen para separar los botones */
+  font-size: 13px; /* Añade un pequeño margen para separar los botones */
+  min-height: 40px;
+  display: flex; /* Usa flexbox para centrar verticalmente */
+  align-items: center; /* Centra verticalmente el contenido del botón */
 }
-
 
 button.btnn:hover {
   background-color: #e43f00;
@@ -125,12 +128,6 @@ button.btnn:hover {
 }
 
 
-.card-actions {
-  display: flex;
-  justify-content: space-between; /* Esto asegura que los botones tengan espacio entre ellos */
-  align-items: center; /* Alinea los botones verticalmente en el centro */
-}
-
 .btn-whatsapp {
   padding: 10px;
   border-radius: 50%;
@@ -146,7 +143,7 @@ button.btnn:hover {
   background-color: rgba(0, 255, 0, 0.1); /* Sutil fondo verde al pasar el mouse */
 }
 
-@media (min-width: 576px) { /* Tamaño para pantallas pequeñas y mayores */
+@media (max-width: 576px) {
   .btn-group {
     flex-direction: row;
   }
@@ -181,4 +178,35 @@ button.btnn:hover {
 
 .btnnn-primary:hover {
   background-color: #FF6347; /* un naranja un poco más claro para el hover*/
+}
+.card img {
+  height: 250px;
+}
+@media (min-width: 991px) {
+  .card img {
+    height: 500px;
+  }
+}
+
+
+/* Estilos para el menú desplegable más pequeño */
+.select-container select {
+  width: 170px; /* Ajusta el ancho según sea necesario */
+  height: 30px; /* Ajusta la altura del menú desplegable */
+  padding: 5px;
+  font-size: 13px; /* Tamaño de la letra */
+  background-color: #8a8787; /* Color de fondo predeterminado */
+  color: #ffffff; /* Color de la letra */
+  border: 1px solid #ccc; /* Borde */
+  border-radius: 4px; /* Esquinas redondeadas */
+  cursor: pointer;
+  position: relative; /* Cambio importante: utiliza position:relative */
+  top: 5px; /* Ajusta el desplazamiento vertical del menú */
+}
+
+
+/* Cambiar el color de fondo cuando el menú está desplegado */
+.select-container select:focus {
+  background-color: #8a8787; /* Color de fondo cuando el menú está enfocado */
+  color: #fff;
 }

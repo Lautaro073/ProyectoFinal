@@ -1,28 +1,29 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { useCarrito } from "../../Context/CarritoContext";
+import CustomModal from '../Inicio/CustomModal'; // Reemplaza 'tu/ruta/al/CustomModal' con la ruta correcta
 import notFound from '../../assets/imagen not found.png';
-import { useCarrito } from "../../Context/CarritoContext"; // Asegúrate de usar la ruta correcta
 
 function ProductosPorCategoria() {
-  const { agregarAlCarrito } = useCarrito(); // Obtiene agregarAlCarrito del contexto
-
-  const generarLinkWhatsApp = (nombreProducto) => {
-    const numero = "+5491126009633";
-    const base = "https://api.whatsapp.com/send?phone=";
-    const mensaje = `Hola! Me gustaría saber más sobre este producto: ${nombreProducto}`;
-    return `${base}${numero}&text=${encodeURIComponent(mensaje)}`;
-  };
-
-  const [productos, setProductos] = useState([]);
+  const { agregarAlCarrito } = useCarrito();
   const params = useParams();
   const categoriaNombre = params.categoria;
+
+  const [productos, setProductos] = useState([]);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     async function obtenerProductos() {
       try {
         const response = await axios.get(`categorias/categoria/${categoriaNombre}`);
-        setProductos(response.data);
+        const productosConTalle = response.data.map((producto) => ({
+          ...producto,
+          tallesDisponibles: producto.talle.split(","),
+          talleSeleccionado: ""
+        }));
+        setProductos(productosConTalle);
       } catch (error) {
         console.error("Error al obtener los productos:", error);
       }
@@ -30,6 +31,17 @@ function ProductosPorCategoria() {
 
     obtenerProductos();
   }, [categoriaNombre]);
+
+  const openModal = (product) => {
+    setSelectedProduct(product);
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedProduct(null);
+    setModalIsOpen(false);
+  };
+
   return (
     <>
       <div className="main-container">
@@ -39,7 +51,7 @@ function ProductosPorCategoria() {
             {productos.length > 0 ? (
               productos.map((producto) => (
                 <div key={producto.id_producto} className="col-md-4 mb-4">
-                  <div className="card">
+                  <div className="card" onClick={() => openModal(producto)}>
                     <div className="card-img-container">
                       <img
                         src={producto.imagen}
@@ -47,7 +59,7 @@ function ProductosPorCategoria() {
                         className="img-fluid"
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = {notFound};
+                          e.target.src = notFound;
                         }}
                       />
                     </div>
@@ -57,23 +69,47 @@ function ProductosPorCategoria() {
                       </h5>
                       <p className="card-text">{producto.descripcion}</p>
                       <div className="card-actions">
+                        <div className="form-group select-container">
+                          <select
+                            id={`talleSelect-${producto.id_producto}`}
+                            className="form-control"
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => {
+                              const talleSeleccionado = e.target.value;
+                              const nuevosProductos = productos.map((p) =>
+                                p.id_producto === producto.id_producto
+                                  ? { ...p, talleSeleccionado }
+                                  : p
+                              );
+                              setProductos(nuevosProductos);
+                            }}
+                            value={producto.talleSeleccionado}
+                          >
+                            <option value="" disabled>
+                              Talle
+                            </option>
+                            {producto.tallesDisponibles.map((talle) => (
+                              <option key={talle} value={talle}>
+                                {talle}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                         <button
                           className="btnn btn-primary"
-                          onClick={() =>
-                            agregarAlCarrito(producto.id_producto, 1)
-                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (producto.talleSeleccionado) {
+                              agregarAlCarrito(producto.id_producto, 1);
+                            } else {
+                              alert(
+                                "Por favor, selecciona un talle antes de agregar al carrito."
+                              );
+                            }
+                          }}
                         >
-                          Agregar al Carrito
+                          Añadir al Carrito
                         </button>
-
-                        <a
-                          href={generarLinkWhatsApp(producto.nombre)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-success ml-2"
-                        >
-                          <i className="fa fa-whatsapp"></i>
-                        </a>
                       </div>
                     </div>
                   </div>
@@ -88,6 +124,14 @@ function ProductosPorCategoria() {
           </div>
         </div>
       </div>
+      {modalIsOpen && (
+        <CustomModal
+          isOpen={modalIsOpen}
+          closeModal={closeModal}
+          product={selectedProduct}
+          agregarAlCarrito={agregarAlCarrito}
+        />
+      )}
     </>
   );
 }

@@ -1,0 +1,78 @@
+/* estado-pago.css */
+
+.estado-pago-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 50px;
+}
+
+.banner-image {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  /* Agrega animaciones si lo deseas */
+  animation: fadeIn 1s ease-in-out;
+}
+
+.content-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  /* Agrega animaciones si lo deseas */
+  animation: slideIn 1s ease-in-out;
+}
+
+.content-container .titulo-exitoso{
+  color: #2cd371;
+}
+.content-container .titulo-pendiente{
+  color: rgb(255, 129, 11);
+}
+.content-container .titulo-rechazado{
+  color: rgb(236, 28, 28);
+}
+.titulo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.mensaje {
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+
+.exito .mensaje {
+  color: #27ae60;
+}
+
+.pendiente .mensaje {
+  color: #d35400;
+}
+
+.rechazado .mensaje {
+  color: #c0392b;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(30px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

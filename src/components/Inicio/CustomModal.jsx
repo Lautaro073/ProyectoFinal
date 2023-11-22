@@ -1,14 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Modal from 'react-modal';
 import '../../css/CustomModal.css';
 
 const CustomModal = ({ isOpen, closeModal, product, agregarAlCarrito }) => {
+  const [talleSeleccionado, setTalleSeleccionado] = useState('');
+
   const handleAgregarAlCarrito = (e) => {
-    e.stopPropagation(); // Evita que el clic en el botón propague al contenedor y abra el modal.
-    if (product) {
+    if (product && talleSeleccionado) {
       agregarAlCarrito(product.id_producto, 1);
       closeModal();
+    } else {
+      alert('Por favor, selecciona un talle antes de agregar al carrito.');
     }
+  };
+
+  const handleTalleChange = (e) => {
+    setTalleSeleccionado(e.target.value);
   };
 
   return (
@@ -28,10 +35,27 @@ const CustomModal = ({ isOpen, closeModal, product, agregarAlCarrito }) => {
         </div>
         <h2>{product ? product.nombre : ''}</h2>
         <p>Precio: {product ? `${product.precio}$` : ''}</p>
-        <p>Talles: {product ? product.talles : ''}</p>
         <p>{product ? product.descripcion : ''}</p>
+        <div className="form-group select-container">
+          <select
+            id={`talleSelect-${product ? product.id_producto : ''}`}
+            className="form-control"
+            onClick={(e) => e.stopPropagation()}
+            onChange={handleTalleChange}
+            value={talleSeleccionado}
+          >
+            <option value="" disabled>
+              Seleccionar talle
+            </option>
+            {product && product.tallesDisponibles.map((talle) => (
+              <option key={talle} value={talle}>
+                {talle}
+              </option>
+            ))}
+          </select>
+        </div>
         <button className="ModalAddToCartButton" onClick={handleAgregarAlCarrito}>
-          Agregar al Carrito
+          Añadir al Carrito
         </button>
       </div>
     </Modal>

@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 // Asegúrate de importar correctamente el componente PaymentButton
 import "../../config";
+
 function Carrito() {
   function showAlert(message, type) {
     const alertDiv = document.createElement("div");
@@ -146,7 +147,7 @@ function Carrito() {
     }
   }, []);
   const generarLinkWhatsApp = () => {
-    const numero = "+5491126009633"; // Cambia por el número al que quieres enviar el mensaje
+    const numero = "+5493865524304"; // Cambia por el número al que quieres enviar el mensaje
     const base = "https://api.whatsapp.com/send?phone=";
     const mensaje = `Hola! Me gustaría comprar: ${productos
       .map((producto) => `${producto.nombre} (x${producto.cantidad})`)
@@ -164,50 +165,50 @@ function Carrito() {
           </div>
         ) : (
           <div>
-            {productos.map((producto, index) => {
-              return (
-                <div
-                  key={index}
-                  className="d-flex justify-content-between align-items-center py-2"
-                  style={{
-                    borderBottom: "1px solid #ff4500",
-                    backgroundColor: "black",
-                    color: "white",
-                  }}
-                >
-                  <img
-                    src={producto.imagen}
-                    alt={producto.nombre}
-                    width="50"
-                    height="50"
-                    className="mr-3"
-                  />
+            {productos.map((producto, index) => (
+              <div
+                key={index}
+                className="d-flex justify-content-between align-items-center py-2"
+                style={{
+                  borderBottom: "1px solid #ff4500",
+                  backgroundColor: "black",
+                  color: "white",
+                }}
+              >
+                <img
+                  src={producto.imagen}
+                  alt={producto.nombre}
+                  width="50"
+                  height="50"
+                  className="mr-3"
+                />
+                <div>
                   <h5 className="mb-1">{producto.nombre}</h5>
-                  <div>
-                    <button
-                      className="btn btn-sm btn-outline-danger mr-2"
-                      onClick={() => quitarProducto(producto.id_producto)}
-                    >
-                      -
-                    </button>
-                    <span className="badge bg-black text-white rounded-pill mr-2 ml-2">
-                      {producto.cantidad}
-                    </span>
-                    <button
-                      className="btn btn-sm btn-outline-success ml-2"
-                      onClick={() => agregarProducto(producto.id_producto)}
-                    >
-                      +
-                    </button>
-                  
-                  {/*talle*/}
-                    <div className="badge bg-primary rounded-pill ml-3">
-                      ${producto.precio * producto.cantidad}
-                    </div>
+                  <p className="mb-1">Talle/s: {producto.talleSeleccionado}</p>
+                </div>
+                <div>
+                  <button
+                    className="btn btn-sm btn-outline-danger mr-2"
+                    onClick={() => quitarProducto(producto.id_producto)}
+                  >
+                    -
+                  </button>
+                  <span className="badge bg-black text-white rounded-pill mr-2 ml-2">
+                    {producto.cantidad}
+                  </span>
+                  <button
+                    className="btn btn-sm btn-outline-success ml-2"
+                    onClick={() => agregarProducto(producto.id_producto)}
+                  >
+                    +
+                  </button>
+
+                  <div className="badge bg-primary rounded-pill ml-3">
+                    ${producto.precio * producto.cantidad}
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
 
@@ -227,6 +228,7 @@ function Carrito() {
       </div>
     </div>
   );
+
 }
 
 export default Carrito;

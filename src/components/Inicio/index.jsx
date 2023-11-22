@@ -38,13 +38,24 @@ function Inicio() {
 
       try {
         const response = await axios.get(url);
+
+        const productosConTalle = response.data.map((producto) => ({
+          ...producto,
+          tallesDisponibles: producto.talle.split(","), // Suponiendo que la respuesta es un string separado por comas
+          talleSeleccionado: ""
+        }));
+
         if (response.data.length < limit) {
           setHasMore(false);
         } else {
           setHasMore(true);
         }
 
-        setProductos((prevProductos) => [...prevProductos, ...response.data]);
+        setProductos((prevProductos) => [
+          ...prevProductos,
+          ...productosConTalle
+        ]);
+
         if (response.data[0]) {
           setCategoriaNombre(response.data[0].nombre_categoria);
         } else {
@@ -72,7 +83,9 @@ function Inicio() {
     <>
       <Carrusel />
       <div className="container mt-5">
-        <h2 className="mb-4 text-white text-center">{categoriaNombre} Disponibles:</h2>
+        <h2 className="mb-4 text-white text-center">
+          {categoriaNombre} Disponibles:
+        </h2>
         <div className="row">
           {productos.map((producto) => (
             <div key={producto.id_producto} className="col-md-4 mb-4">
@@ -86,23 +99,47 @@ function Inicio() {
                   </h5>
                   <p className="card-text">{producto.descripcion}</p>
                   <div className="card-actions">
+                    <div className="form-group select-container">
+                      <select
+                        id={`talleSelect-${producto.id_producto}`}
+                        className="form-control"
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => {
+                          const talleSeleccionado = e.target.value;
+                          const nuevosProductos = productos.map((p) =>
+                            p.id_producto === producto.id_producto
+                              ? { ...p, talleSeleccionado }
+                              : p
+                          );
+                          setProductos(nuevosProductos);
+                        }}
+                        value={producto.talleSeleccionado}
+                      >
+                        <option value="" disabled>
+                          Talle
+                        </option>
+                        {producto.tallesDisponibles.map((talle) => (
+                          <option key={talle} value={talle}>
+                            {talle}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                     <button
                       className="btnn btn-primary"
                       onClick={(e) => {
                         e.stopPropagation();
-                        agregarAlCarrito(producto.id_producto, 1);
+                        if (producto.talleSeleccionado) {
+                          agregarAlCarrito(producto.id_producto, 1);
+                        } else {
+                          alert(
+                            "Por favor, selecciona un talle antes de agregar al carrito."
+                          );
+                        }
                       }}
                     >
-                      Agregar al Carrito
+                      Añadir al Carrito
                     </button>
-                    <a
-                      href={generarLinkWhatsApp(producto.nombre)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btn-success ml-2"
-                    >
-                      <i className="fa fa-whatsapp"></i>
-                    </a>
                   </div>
                 </div>
               </div>

@@ -21,6 +21,9 @@ import axios from "axios";
 import PrivateRoute from './PrivateRoute'; // Asegúrate de poner la ruta correcta al componente.
 import './css/alerta.css'
 import 'font-awesome/css/font-awesome.min.css';
+import PagoExitoso from "./components/Checkout/exito";
+import PagoPendiente from "./components/Checkout/pendiente";
+import PagoRechazado from "./components/Checkout/rechazado";
 
 function App() {
   function showAlert(message, type) {
@@ -170,6 +173,9 @@ function App() {
             <Route path="cargarProductos" element={<CargarProductos />} />
         </Route>
         <Route path="*" element={<PageNotFound />} /> {/* Esto captura cualquier ruta no definida */}
+        <Route path="/exitoso" element={<PagoExitoso />} />
+        <Route path="/pendiente" element={<PagoPendiente />} />
+        <Route path="/rechazado" element={<PagoRechazado />} />
       </Routes>
       <Footer/>
     </Router>
