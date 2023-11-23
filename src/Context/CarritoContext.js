@@ -47,35 +47,35 @@ export const CarritoProvider = ({ children }) => {
   };
 
   const agregarAlCarrito = async (producto, cantidad = 1) => {
-    // Asegúrate de que producto incluye id_producto y talleSeleccionado
-    const { id_producto, talleSeleccionado } = producto;
-  
-    if (!userId) {
-      console.error("No hay sesión de usuario.");
-      return;
-    }
-  
-    // Verificar si se seleccionó un talle antes de agregar al carrito
-    if (!talleSeleccionado) {
-      showAlert("Por favor, selecciona un talle antes de agregar al carrito.", "error");
-      return;
-    }
-  
-    try {
-      // Incluye el talleSeleccionado en la solicitud POST
-      await axios.post(`carrito/${userId}`, {
-        id_producto,
-        cantidad,
-        talle: talleSeleccionado, // Asegúrate de que el backend espera un campo 'talle'
-      });
-  
-      await actualizarCarrito(); // Actualiza el estado del carrito después de agregar un ítem
-      showAlert("Producto agregado al carrito!", "success");
-    } catch (error) {
-      console.error("Error al agregar al carrito:", error);
-    }
-  };
-  
+  // Asegúrate de que producto incluye id_producto y talleSeleccionado
+  const { id_producto, talleSeleccionado } = producto;
+
+  if (!userId) {
+    console.error("No hay sesión de usuario.");
+    return;
+  }
+
+  // Verificar si se seleccionó un talle antes de agregar al carrito
+  if (!talleSeleccionado) {
+    showAlert("Por favor, selecciona un talle antes de agregar al carrito.", "error");
+    return;
+  }
+
+  try {
+    // Incluye el talleSeleccionado en la solicitud POST
+    await axios.post(`carrito/${userId}`, {
+      id_producto,
+      cantidad,
+      talle: talleSeleccionado, // Asegúrate de que el backend espera un campo 'talle'
+    });
+
+    await actualizarCarrito(); // Actualiza el estado del carrito después de agregar un ítem
+    showAlert("Producto agregado al carrito!", "success");
+  } catch (error) {
+    console.error("Error al agregar al carrito:", error);
+  }
+};
+
 
   // Observa cambios en el userId y actualiza el carrito si cambia
   useEffect(() => {

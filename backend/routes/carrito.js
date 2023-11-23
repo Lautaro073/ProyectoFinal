@@ -39,7 +39,7 @@ router.post("/:id_carrito", async (req, res) => {
   try {
     const { id_producto, cantidad, talle } = req.body;
 
-    // Verifica que todos los datos requeridos estén presentes
+    // Verifica que id_producto, cantidad y talle estén presentes
     if (!id_producto || cantidad <= 0 || !talle) {
       return res.status(400).send("Datos inválidos");
     }
@@ -51,7 +51,7 @@ router.post("/:id_carrito", async (req, res) => {
     );
 
     if (existingItems.length > 0) {
-      // Si el producto con el mismo talle ya existe en el carrito, actualizar la cantidad
+      // Producto con el mismo talle ya existe, actualiza la cantidad
       const newCantidad = existingItems[0].cantidad + cantidad;
       await db.query(
         "UPDATE items_carrito SET cantidad = ? WHERE id_carrito = ? AND id_producto = ? AND talle = ?",
@@ -59,7 +59,7 @@ router.post("/:id_carrito", async (req, res) => {
       );
       res.send("Cantidad del producto actualizada en el carrito");
     } else {
-      // Si el producto no existe o existe pero con un talle diferente, insertar nueva fila
+      // Nuevo producto o mismo producto con diferente talle
       await db.query(
         "INSERT INTO items_carrito (id_carrito, id_producto, cantidad, talle) VALUES (?, ?, ?, ?)",
         [req.params.id_carrito, id_producto, cantidad, talle]
@@ -71,6 +71,7 @@ router.post("/:id_carrito", async (req, res) => {
     res.status(500).send("Error al agregar o actualizar el producto en el carrito");
   }
 });
+
 
 
 // Actualizar cantidad de producto en el carrito
@@ -92,6 +93,26 @@ router.put("/:id_carrito/:id_producto", async (req, res) => {
     res.status(500).send("Error al actualizar el producto en el carrito");
   }
 });
+// Actualizar cantidad de producto en el carrito considerando el talle
+router.put("/:id_carrito/:id_producto/:talle", async (req, res) => {
+  try {
+    const { cantidad } = req.body;
+    const { id_carrito, id_producto, talle } = req.params;
+
+    if (cantidad <= 0) {
+      return res.status(400).send("Cantidad inválida");
+    }
+
+    await db.query(
+      "UPDATE items_carrito SET cantidad = ? WHERE id_carrito = ? AND id_producto = ? AND talle = ?",
+      [cantidad, id_carrito, id_producto, talle]
+    );
+    res.send("Cantidad del producto actualizada en el carrito");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error al actualizar el producto en el carrito");
+  }
+});
 
 // Eliminar producto del carrito
 router.delete('/:id_carrito/:id_producto', async (req, res) => {
@@ -103,6 +124,20 @@ router.delete('/:id_carrito/:id_producto', async (req, res) => {
         res.status(500).send('Error al eliminar el producto del carrito');
     }
 });
+
+// Eliminar producto específico del carrito basado en el talle
+router.delete('/:id_carrito/:id_producto/:talle', async (req, res) => {
+  try {
+      const { id_carrito, id_producto, talle } = req.params;
+
+      await db.query('DELETE FROM items_carrito WHERE id_carrito = ? AND id_producto = ? AND talle = ?', [id_carrito, id_producto, talle]);
+      res.send('Producto eliminado del carrito');
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Error al eliminar el producto del carrito');
+  }
+});
+
 // Obtener los productos de un carrito basado en UUID de usuario
 router.get("/:user_uuid", async (req, res) => {
   try {

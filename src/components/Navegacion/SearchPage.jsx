@@ -104,20 +104,14 @@ function SearchPage() {
                           </select>
                         </div>
                         <button
-                          className="btnn btn-primary"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (producto.talleSeleccionado) {
-                              agregarAlCarrito(producto.id_producto, 1);
-                            } else {
-                              showAlert(
-                                "Por favor, selecciona un talle antes de agregar al carrito."
-                              ,"error");
-                            }
-                          }}
-                        >
-                          Añadir al Carrito
-                        </button>
+                      className="btnn btn-primary"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        agregarAlCarrito(producto);
+                      }}
+                    >
+                      Añadir al Carrito
+                    </button>
                       </div>
                     </div>
                   </div>

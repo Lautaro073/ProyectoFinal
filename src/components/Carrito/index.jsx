@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 // Asegúrate de importar correctamente el componente PaymentButton
+import { useCarrito } from "../../Context/CarritoContext";
 import "../../config";
 
 function Carrito() {
@@ -30,7 +31,7 @@ function Carrito() {
   const navigate = useNavigate();
   const sessionId = localStorage.getItem("sessionId");
   const carritoId = sessionId; // Asumimos que carritoId es igual a sessionId para simplificar
-
+  const { actualizarCarrito } = useCarrito();
   const cargarProductos = useCallback(() => {
     axios.get(`carrito/${carritoId}`).then((respuesta) => {
       console.log("Productos desde el servidor:", respuesta.data);
@@ -42,7 +43,7 @@ function Carrito() {
     cargarProductos();
   }, [cargarProductos]);
 
-  const agregarProducto = async (productoId) => {
+  const agregarProducto = async (productoId, talle) => {
     console.log("Producto ID:", productoId); // Agrega esta línea
     try {
       const stockActual = await verificarStock(productoId);
@@ -75,8 +76,9 @@ function Carrito() {
       const response = await axios.post(`carrito/${carritoId}`, {
         id_producto: productoId,
         cantidad: 1,
+        talle: talle, // Asegúrate de enviar el talle al backend
       });
-
+      await actualizarCarrito();
       if (response.status === 201 || response.status === 200) {
         cargarProductos();
       }
@@ -84,11 +86,14 @@ function Carrito() {
       console.error("Error al agregar producto:", error);
     }
   };
-  const quitarProducto = async (productoId) => {
+
+  const quitarProducto = async (productoId, talle) => {
     console.log("ID recibido:", productoId);
     console.log("Lista de productos:", productos);
     try {
-      const producto = productos.find((p) => p.id_producto === productoId);
+      const producto = productos.find(
+        (p) => p.id_producto === productoId && p.talle === talle
+      );
       if (!producto) {
         console.error("Producto no encontrado:", productoId);
         return;
@@ -97,16 +102,22 @@ function Carrito() {
       let response;
       // Usando la cantidad del producto para decidir si lo actualizamos o lo eliminamos.
       if (producto.cantidad > 1) {
-        response = await axios.put(`carrito/${carritoId}/${productoId}`, {
-          cantidad: producto.cantidad - 1,
-        });
+        response = await axios.put(
+          `carrito/${carritoId}/${productoId}/${talle}`,
+          {
+            cantidad: producto.cantidad - 1,
+          }
+        );
       } else {
-        response = await axios.delete(`carrito/${carritoId}/${productoId}`);
+        response = await axios.delete(
+          `carrito/${carritoId}/${productoId}/${talle}`
+        );
       }
 
       if (response.status === 200) {
         cargarProductos();
       }
+      await actualizarCarrito();
     } catch (error) {
       console.error("Error al quitar producto:", error);
     }
@@ -189,7 +200,9 @@ function Carrito() {
                 <div>
                   <button
                     className="btn btn-sm btn-outline-danger mr-2"
-                    onClick={() => quitarProducto(producto.id_producto)}
+                    onClick={() =>
+                      quitarProducto(producto.id_producto, producto.talle)
+                    }
                   >
                     -
                   </button>
@@ -198,7 +211,9 @@ function Carrito() {
                   </span>
                   <button
                     className="btn btn-sm btn-outline-success ml-2"
-                    onClick={() => agregarProducto(producto.id_producto)}
+                    onClick={() =>
+                      agregarProducto(producto.id_producto, producto.talle)
+                    }
                   >
                     +
                   </button>
@@ -228,7 +243,6 @@ function Carrito() {
       </div>
     </div>
   );
-
 }
 
 export default Carrito;
