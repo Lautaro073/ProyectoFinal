@@ -63,13 +63,13 @@
   width: 35px;
   height: 35px;
   border-radius: 50%;
-  background-color: #202020;
+  background-color: #000;
   color: #ff0000;
   font-size: 22px;
   transition: all 0.5s;
 }
 .CloseIcon:hover {
-  background-color: #7b7c7c;
+  background-color: #202020;
   transform: scale(1.1);
   font-size: 24px;
 }

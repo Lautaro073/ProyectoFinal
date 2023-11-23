@@ -83,6 +83,7 @@ function CargarProducto() {
     const formData = new FormData();
     formData.append("nombre", nombreProducto);
     formData.append("descripcion", descripcion);
+    formData.append("talle", talle);
     formData.append("precio", precio);
     formData.append("id_categoria", idCategoria);
     formData.append("stock", stock);
@@ -121,6 +122,7 @@ function CargarProducto() {
       const producto = response.data;
       setNombreProducto(producto.nombre);
       setDescripcion(producto.descripcion);
+      setTalle(producto.talle)
       setPrecio(producto.precio);
       setIdCategoria(producto.id_categoria);
       setStock(producto.stock);

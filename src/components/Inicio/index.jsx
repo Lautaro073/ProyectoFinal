@@ -16,13 +16,6 @@ function Inicio() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const generarLinkWhatsApp = (nombreProducto) => {
-    const numero = "+5491126009633";
-    const base = "https://api.whatsapp.com/send?phone=";
-    const mensaje = `Hola! Me gustaría saber más sobre este producto: ${nombreProducto}`;
-    return `${base}${numero}&text=${encodeURIComponent(mensaje)}`;
-  };
-
   useEffect(() => {
     setOffset(0);
     setHasMore(true);
@@ -42,7 +35,7 @@ function Inicio() {
         const productosConTalle = response.data.map((producto) => ({
           ...producto,
           tallesDisponibles: producto.talle.split(","), // Suponiendo que la respuesta es un string separado por comas
-          talleSeleccionado: ""
+          talleSeleccionado: "",
         }));
 
         if (response.data.length < limit) {
@@ -53,7 +46,7 @@ function Inicio() {
 
         setProductos((prevProductos) => [
           ...prevProductos,
-          ...productosConTalle
+          ...productosConTalle,
         ]);
 
         if (response.data[0]) {
@@ -129,13 +122,7 @@ function Inicio() {
                       className="btnn btn-primary"
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (producto.talleSeleccionado) {
-                          agregarAlCarrito(producto.id_producto, 1);
-                        } else {
-                          alert(
-                            "Por favor, selecciona un talle antes de agregar al carrito."
-                          );
-                        }
+                        agregarAlCarrito(producto);
                       }}
                     >
                       Añadir al Carrito
@@ -159,11 +146,11 @@ function Inicio() {
         )}
       </div>
       <CustomModal
-        isOpen={modalIsOpen}
-        closeModal={closeModal}
-        product={selectedProduct}
-        agregarAlCarrito={agregarAlCarrito}
-      />
+  isOpen={modalIsOpen}
+  closeModal={closeModal}
+  product={selectedProduct}
+/>
+
     </>
   );
 }

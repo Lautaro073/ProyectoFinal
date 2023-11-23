@@ -1,16 +1,42 @@
-import React, { useState } from 'react';
-import Modal from 'react-modal';
-import '../../css/CustomModal.css';
+import React, { useState } from "react";
+import Modal from "react-modal";
+import "../../css/CustomModal.css";
+import { useCarrito } from "../../Context/CarritoContext";
 
-const CustomModal = ({ isOpen, closeModal, product, agregarAlCarrito }) => {
-  const [talleSeleccionado, setTalleSeleccionado] = useState('');
+const CustomModal = ({ isOpen, closeModal, product }) => {
+  function showAlert(message, type) {
+    const alertDiv = document.createElement("div");
+    alertDiv.className = `alert-custom alert-${type}`;
+    alertDiv.textContent = message;
 
-  const handleAgregarAlCarrito = (e) => {
+    document.body.appendChild(alertDiv);
+
+    // Dar un pequeño tiempo para que la alerta inicialice y luego agregar la clase 'show'
+    setTimeout(() => {
+      alertDiv.classList.add("show");
+    }, 10);
+
+    // Después de 3 segundos, remover la alerta
+    setTimeout(() => {
+      alertDiv.classList.remove("show");
+      // Esperamos que termine la transición de salida y luego eliminamos el elemento del DOM
+      setTimeout(() => {
+        alertDiv.remove();
+      }, 310); // 10 ms adicionales para asegurarnos de que la transición ha terminado
+    }, 3000);
+  }
+
+  const [talleSeleccionado, setTalleSeleccionado] = useState("");
+  const { agregarAlCarrito } = useCarrito(); // Añade esto
+  const handleAgregarAlCarrito = () => {
     if (product && talleSeleccionado) {
-      agregarAlCarrito(product.id_producto, 1);
+      agregarAlCarrito({ ...product, talleSeleccionado }, 1);
       closeModal();
     } else {
-      alert('Por favor, selecciona un talle antes de agregar al carrito.');
+      showAlert(
+        "Por favor, selecciona un talle antes de agregar al carrito.",
+        "error"
+      );
     }
   };
 
@@ -31,14 +57,17 @@ const CustomModal = ({ isOpen, closeModal, product, agregarAlCarrito }) => {
           <div className="CloseIcon">X</div>
         </div>
         <div className="ModalImageContainer">
-          <img src={product ? product.imagen : ''} alt={product ? product.nombre : ''} />
+          <img
+            src={product ? product.imagen : ""}
+            alt={product ? product.nombre : ""}
+          />
         </div>
-        <h2>{product ? product.nombre : ''}</h2>
-        <p>Precio: {product ? `${product.precio}$` : ''}</p>
-        <p>{product ? product.descripcion : ''}</p>
+        <h2>{product ? product.nombre : ""}</h2>
+        <p>Precio: {product ? `${product.precio}$` : ""}</p>
+        <p>{product ? product.descripcion : ""}</p>
         <div className="form-group select-container">
           <select
-            id={`talleSelect-${product ? product.id_producto : ''}`}
+            id={`talleSelect-${product ? product.id_producto : ""}`}
             className="form-control"
             onClick={(e) => e.stopPropagation()}
             onChange={handleTalleChange}
@@ -47,14 +76,18 @@ const CustomModal = ({ isOpen, closeModal, product, agregarAlCarrito }) => {
             <option value="" disabled>
               Seleccionar talle
             </option>
-            {product && product.tallesDisponibles.map((talle) => (
-              <option key={talle} value={talle}>
-                {talle}
-              </option>
-            ))}
+            {product &&
+              product.tallesDisponibles.map((talle) => (
+                <option key={talle} value={talle}>
+                  {talle}
+                </option>
+              ))}
           </select>
         </div>
-        <button className="ModalAddToCartButton" onClick={handleAgregarAlCarrito}>
+        <button
+          className="ModalAddToCartButton"
+          onClick={handleAgregarAlCarrito}
+        >
           Añadir al Carrito
         </button>
       </div>

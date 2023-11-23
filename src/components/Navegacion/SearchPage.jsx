@@ -9,7 +9,27 @@ function SearchPage() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const searchQuery = new URLSearchParams(window.location.search).get("search");
+  function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert-custom alert-${type}`;
+    alertDiv.textContent = message;
 
+    document.body.appendChild(alertDiv);
+
+    // Dar un pequeño tiempo para que la alerta inicialice y luego agregar la clase 'show'
+    setTimeout(() => {
+        alertDiv.classList.add('show');
+    }, 10);
+
+    // Después de 3 segundos, remover la alerta
+    setTimeout(() => {
+        alertDiv.classList.remove('show');
+        // Esperamos que termine la transición de salida y luego eliminamos el elemento del DOM
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 310); // 10 ms adicionales para asegurarnos de que la transición ha terminado
+    }, 3000);
+}
   useEffect(() => {
     axios
       .get(`productos/search?search=${searchQuery}`)
@@ -90,9 +110,9 @@ function SearchPage() {
                             if (producto.talleSeleccionado) {
                               agregarAlCarrito(producto.id_producto, 1);
                             } else {
-                              alert(
+                              showAlert(
                                 "Por favor, selecciona un talle antes de agregar al carrito."
-                              );
+                              ,"error");
                             }
                           }}
                         >
@@ -112,11 +132,11 @@ function SearchPage() {
 
       {modalIsOpen && (
         <CustomModal
-          isOpen={modalIsOpen}
-          closeModal={closeModal}
-          product={selectedProduct}
-          agregarAlCarrito={agregarAlCarrito}
-        />
+  isOpen={modalIsOpen}
+  closeModal={closeModal}
+  product={selectedProduct}
+/>
+
       )}
     </>
   );

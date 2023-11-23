@@ -2,7 +2,7 @@ import Inicio from "./components/Inicio";
 import Producto from "./components/Producto";
 import Carrito from "./components/Carrito";
 import Checkout from "./components/Checkout";
-import Checkouterror from "./components/Checkout/error";
+import Checkouterror from "./components/Checkout/rechazado";
 import Checkoutpendiente from "./components/Checkout/pendiente";
 import Checkoutexito from "./components/Checkout/exito";
 import Navegacion from "./components/Navegacion";

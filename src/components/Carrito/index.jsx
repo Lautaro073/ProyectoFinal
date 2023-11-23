@@ -184,7 +184,7 @@ function Carrito() {
                 />
                 <div>
                   <h5 className="mb-1">{producto.nombre}</h5>
-                  <p className="mb-1">Talle/s: {producto.talleSeleccionado}</p>
+                  <p className="mb-1">Talle: {producto.talle}</p>
                 </div>
                 <div>
                   <button

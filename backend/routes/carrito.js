@@ -4,25 +4,25 @@ const db = require("../database");
 const router = express.Router();
 
 // Obtener los productos de un carrito
-
 router.get("/:id_carrito", async (req, res) => {
   try {
     const [rows] = await db.query(`
-        SELECT items_carrito.cantidad, Productos.id_producto, Productos.nombre, Productos.precio, Imagenes.mime, Imagenes.contenido 
+        SELECT items_carrito.cantidad, items_carrito.talle, Productos.id_producto, Productos.nombre, Productos.precio, Imagenes.mime, Imagenes.contenido 
         FROM items_carrito 
         JOIN Productos ON items_carrito.id_producto = Productos.id_producto 
         LEFT JOIN Imagenes ON Productos.id_imagen = Imagenes.id
         WHERE items_carrito.id_carrito = ?
     `, [req.params.id_carrito]);
 
-    const itemsConImagen = rows.map(row => {
+    const itemsConImagenYTalle = rows.map(row => {
         return {
             ...row,
-            imagen: row.contenido ? `data:${row.mime};base64,${Buffer.from(row.contenido).toString('base64')}` : null
+            imagen: row.contenido ? `data:${row.mime};base64,${Buffer.from(row.contenido).toString('base64')}` : null,
+            talle: row.talle  // Asegúrate de que el campo 'talle' se incluya correctamente en tu objeto de respuesta.
         };
     });
 
-    res.json(itemsConImagen);
+    res.json(itemsConImagenYTalle);
   } catch (error) {
     console.error(error);
     res.status(500).send('Error al obtener los items del carrito');
@@ -32,44 +32,46 @@ router.get("/:id_carrito", async (req, res) => {
 
 
 
+
+
 // Agregar producto al carrito o actualizar cantidad si ya existe
 router.post("/:id_carrito", async (req, res) => {
   try {
-    const { id_producto, cantidad } = req.body;
+    const { id_producto, cantidad, talle } = req.body;
 
-    if (!id_producto || cantidad <= 0) {
+    // Verifica que todos los datos requeridos estén presentes
+    if (!id_producto || cantidad <= 0 || !talle) {
       return res.status(400).send("Datos inválidos");
     }
 
-    // Verificar si el producto ya existe en el carrito
+    // Verifica si el mismo producto con el mismo talle ya existe en el carrito
     const [existingItems] = await db.query(
-      "SELECT * FROM items_carrito WHERE id_carrito = ? AND id_producto = ?",
-      [req.params.id_carrito, id_producto]
+      "SELECT * FROM items_carrito WHERE id_carrito = ? AND id_producto = ? AND talle = ?",
+      [req.params.id_carrito, id_producto, talle]
     );
 
     if (existingItems.length > 0) {
-      // Si el producto ya existe en el carrito, actualizar la cantidad
+      // Si el producto con el mismo talle ya existe en el carrito, actualizar la cantidad
       const newCantidad = existingItems[0].cantidad + cantidad;
       await db.query(
-        "UPDATE items_carrito SET cantidad = ? WHERE id_carrito = ? AND id_producto = ?",
-        [newCantidad, req.params.id_carrito, id_producto]
+        "UPDATE items_carrito SET cantidad = ? WHERE id_carrito = ? AND id_producto = ? AND talle = ?",
+        [newCantidad, req.params.id_carrito, id_producto, talle]
       );
       res.send("Cantidad del producto actualizada en el carrito");
     } else {
-      // Si el producto no existe en el carrito, insertar nueva fila
+      // Si el producto no existe o existe pero con un talle diferente, insertar nueva fila
       await db.query(
-        "INSERT INTO items_carrito (id_carrito, id_producto, cantidad) VALUES (?, ?, ?)",
-        [req.params.id_carrito, id_producto, cantidad]
+        "INSERT INTO items_carrito (id_carrito, id_producto, cantidad, talle) VALUES (?, ?, ?, ?)",
+        [req.params.id_carrito, id_producto, cantidad, talle]
       );
       res.status(201).send("Producto agregado al carrito");
     }
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .send("Error al agregar o actualizar el producto en el carrito");
+    res.status(500).send("Error al agregar o actualizar el producto en el carrito");
   }
 });
+
 
 // Actualizar cantidad de producto en el carrito
 router.put("/:id_carrito/:id_producto", async (req, res) => {
@@ -106,7 +108,7 @@ router.get("/:user_uuid", async (req, res) => {
   try {
     const [rows] = await db.query(
       `
-        SELECT items_carrito.cantidad, Productos.nombre, Productos.precio, Imagenes.contenido AS imagen 
+        SELECT items_carrito.cantidad, Productos.nombre, Productos.precio, Productos.talle, Imagenes.contenido AS imagen 
         FROM items_carrito 
         JOIN Productos ON items_carrito.id_producto = Productos.id_producto 
         LEFT JOIN Imagenes ON Productos.id_imagen = Imagenes.id
@@ -117,7 +119,7 @@ router.get("/:user_uuid", async (req, res) => {
     res.json(rows.map(row => {
         return {
             ...row,
-            imagen: row.imagen ? row.imagen.toString('base64') : null // Convertir BLOB a base64
+            imagen: row.imagen ? `data:image/jpeg;base64,${Buffer.from(row.imagen).toString('base64')}` : null // Asumiendo que el MIME type es siempre JPEG
         };
     }));
   } catch (error) {
@@ -125,5 +127,6 @@ router.get("/:user_uuid", async (req, res) => {
     res.status(500).send("Error al obtener los items del carrito");
   }
 });
+
 
 module.exports = router;
