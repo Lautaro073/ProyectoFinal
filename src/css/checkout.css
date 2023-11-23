@@ -1,31 +1,40 @@
-/* estado-pago.css */
-
+.pagos{
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 40px;
+  margin-bottom: 30px;
+}
 .estado-pago-container {
+  width: 70%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 50px;
+  animation: slideIn 1s ease-in-out;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
 }
 
 .banner-image {
   max-width: 100%;
   border-radius: 8px;
   margin-bottom: 20px;
-  /* Agrega animaciones si lo deseas */
   animation: fadeIn 1s ease-in-out;
 }
 
 .content-container {
-  background-color: #fff;
+  background-color: rgba(0, 0, 0, 0.7);
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  /* Agrega animaciones si lo deseas */
-  animation: slideIn 1s ease-in-out;
+  border-radius: 10px;
+  animation: fadeIn 1s ease-in-out;
+  
 }
-
 .content-container .titulo-exitoso{
   color: #2cd371;
 }
@@ -34,6 +43,20 @@
 }
 .content-container .titulo-rechazado{
   color: rgb(236, 28, 28);
+}
+#exitoso,
+#pendiente,
+#rechazado{
+  transition: box-shadow 0.8s;
+}
+#exitoso:hover{
+  box-shadow: 0 0 10px green;
+}
+#pendiente:hover{
+  box-shadow: 0 0 10px rgb(255, 129, 11);
+}
+#rechazado:hover{
+  box-shadow: 0 0 10px rgb(236, 28, 28);
 }
 .titulo {
   font-size: 24px;
@@ -57,7 +80,6 @@
 .rechazado .mensaje {
   color: #c0392b;
 }
-
 /* Animaciones */
 @keyframes fadeIn {
   from {
@@ -74,5 +96,24 @@
   }
   to {
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .pagos{
+    margin-top: 40px;
+    margin-bottom: 50px;
+  }
+  #img-pago{
+    height: 90px;
+  }
+  .estado-pago-container {
+    width: 80%;
+  }
+  .content-container h2{
+    font-size: 20px;
+  }
+  .content-container p{
+    font-size: 16px;
   }
 }
