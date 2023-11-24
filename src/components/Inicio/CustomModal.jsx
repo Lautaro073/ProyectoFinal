@@ -27,11 +27,13 @@ const CustomModal = ({ isOpen, closeModal, product }) => {
   }
 
   const [talleSeleccionado, setTalleSeleccionado] = useState("");
-  const { agregarAlCarrito } = useCarrito(); // Añade esto
+  const { agregarAlCarrito } = useCarrito();
+
   const handleAgregarAlCarrito = () => {
     if (product && talleSeleccionado) {
       agregarAlCarrito({ ...product, talleSeleccionado }, 1);
-      closeModal();
+      setTalleSeleccionado("");
+      //closeModal();
     } else {
       showAlert(
         "Por favor, selecciona un talle antes de agregar al carrito.",

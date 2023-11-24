@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 // Asegúrate de importar correctamente el componente PaymentButton
 import { useCarrito } from "../../Context/CarritoContext";
+import Preload from "../../components/Preload/index"
 import "../../config";
 
 function Carrito() {
@@ -30,19 +31,21 @@ function Carrito() {
   const [productos, setProductos] = useState([]);
   const navigate = useNavigate();
   const sessionId = localStorage.getItem("sessionId");
-  const carritoId = sessionId; // Asumimos que carritoId es igual a sessionId para simplificar
+  const carritoId = sessionId;
   const { actualizarCarrito } = useCarrito();
+  const [cargaCompleta, setCargaCompleta] = useState(false);
+
   const cargarProductos = useCallback(() => {
     axios.get(`carrito/${carritoId}`).then((respuesta) => {
       console.log("Productos desde el servidor:", respuesta.data);
       setProductos(respuesta.data);
+      setCargaCompleta(true);
     });
   }, [carritoId]);
 
   useEffect(() => {
     cargarProductos();
   }, [cargarProductos]);
-
   const agregarProducto = async (productoId, talle) => {
     console.log("Producto ID:", productoId); // Agrega esta línea
     try {
@@ -170,7 +173,9 @@ function Carrito() {
       <div className="container mt-4">
         <h2 style={{ color: "white" }}>Productos en el Carrito</h2>
 
-        {productos.length === 0 ? (
+        {!cargaCompleta ? (
+          <Preload />
+        ) : productos.length === 0 ? (
           <div className="alert alert-dark" role="alert">
             No hay productos en el carrito.
           </div>

@@ -2,6 +2,7 @@
 import React from 'react';
 import '../../css/productos.css'
 import axios from "axios";
+
 function SearchResults({ productos }) {  function showAlert(message, type) {
   const alertDiv = document.createElement('div');
   alertDiv.className = `alert-custom alert-${type}`;

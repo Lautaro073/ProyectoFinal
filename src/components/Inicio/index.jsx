@@ -3,7 +3,8 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useCarrito } from "../../Context/CarritoContext";
 import Carrusel from "./carrusel";
-import CustomModal from "../../components/Inicio/CustomModal"; // Asegúrate de importar el componente CustomModal
+import CustomModal from "../../components/Inicio/CustomModal";
+import Preload from "../../components/Preload/index";
 
 function Inicio() {
   const { agregarAlCarrito } = useCarrito();
@@ -15,27 +16,26 @@ function Inicio() {
   const limit = window.innerWidth <= 768 ? 10 : 15;
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [cargaCompleta, setCargaCompleta] = useState(false); // Nuevo estado
 
   useEffect(() => {
     setOffset(0);
     setHasMore(true);
     setProductos([]);
+    setCargaCompleta(false); // Reiniciar cargaCompleta al cambiar la categoría
   }, [id]);
 
   useEffect(() => {
     async function obtenerProductos() {
-      let url = `productos?limit=${limit}&offset=${offset}`;
-      if (id) {
-        url += `&categoria=${id}`;
-      }
-
       try {
-        const response = await axios.get(url);
+        const response = await axios.get(
+          `productos?limit=${limit}&offset=${offset}`
+        );
 
         const productosConTalle = response.data.map((producto) => ({
           ...producto,
-          tallesDisponibles: producto.talle.split(","), // Suponiendo que la respuesta es un string separado por comas
-          talleSeleccionado: "",
+          tallesDisponibles: producto.talle.split(","),
+          talleSeleccionado: ""
         }));
 
         if (response.data.length < limit) {
@@ -46,7 +46,7 @@ function Inicio() {
 
         setProductos((prevProductos) => [
           ...prevProductos,
-          ...productosConTalle,
+          ...productosConTalle
         ]);
 
         if (response.data[0]) {
@@ -54,6 +54,8 @@ function Inicio() {
         } else {
           setCategoriaNombre("Categoría sin productos");
         }
+
+        setCargaCompleta(true); // Establecer cargaCompleta después de obtener los productos
       } catch (error) {
         console.error("Error al obtener los productos:", error);
       }
@@ -75,82 +77,91 @@ function Inicio() {
   return (
     <>
       <Carrusel />
-      <div className="container mt-5">
-        <h2 className="mb-4 text-white text-center">
-          {categoriaNombre} Disponibles:
-        </h2>
-        <div className="row">
-          {productos.map((producto) => (
-            <div key={producto.id_producto} className="col-md-4 mb-4">
-              <div className="card" onClick={() => openModal(producto)}>
-                <div className="card-img-container">
-                  <img src={producto.imagen} alt={producto.nombre} />
-                </div>
-                <div className="card-body">
-                  <h5 className="card-title">
-                    {producto.nombre} - {producto.precio}$
-                  </h5>
-                  <p className="card-text">{producto.descripcion}</p>
-                  <div className="card-actions">
-                    <div className="form-group select-container">
-                      <select
-                        id={`talleSelect-${producto.id_producto}`}
-                        className="form-control"
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={(e) => {
-                          const talleSeleccionado = e.target.value;
+      {cargaCompleta ? (
+        <div className="container mt-5">
+          <h2 className="mb-4 text-white text-center">
+            {categoriaNombre} Disponibles:
+          </h2>
+          <div className="row">
+            {productos.map((producto) => (
+              <div key={producto.id_producto} className="col-md-4 mb-4">
+                <div className="card" onClick={() => openModal(producto)}>
+                  <div className="card-img-container">
+                    <img src={producto.imagen} alt={producto.nombre} />
+                  </div>
+                  <div className="card-body">
+                    <h5 className="card-title">
+                      {producto.nombre} - {producto.precio}$
+                    </h5>
+                    <p className="card-text">{producto.descripcion}</p>
+                    <div className="card-actions">
+                      <div className="form-group select-container">
+                        <select
+                          id={`talleSelect-${producto.id_producto}`}
+                          className="form-control"
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) => {
+                            const talleSeleccionado = e.target.value;
+                            const nuevosProductos = productos.map((p) =>
+                              p.id_producto === producto.id_producto
+                                ? { ...p, talleSeleccionado }
+                                : p
+                            );
+                            setProductos(nuevosProductos);
+                          }}
+                          value={producto.talleSeleccionado}
+                        >
+                          <option value="" disabled>
+                            Seleccionar talle
+                          </option>
+                          {producto.tallesDisponibles.map((talle) => (
+                            <option key={talle} value={talle}>
+                              {talle}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <button
+                        className="btnn btn-primary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          agregarAlCarrito(producto);
                           const nuevosProductos = productos.map((p) =>
                             p.id_producto === producto.id_producto
-                              ? { ...p, talleSeleccionado }
+                              ? { ...p, talleSeleccionado: "" }
                               : p
                           );
                           setProductos(nuevosProductos);
                         }}
-                        value={producto.talleSeleccionado}
                       >
-                        <option value="" disabled>
-                          Talle
-                        </option>
-                        {producto.tallesDisponibles.map((talle) => (
-                          <option key={talle} value={talle}>
-                            {talle}
-                          </option>
-                        ))}
-                      </select>
+                        Añadir al Carrito
+                      </button>
                     </div>
-                    <button
-                      className="btnn btn-primary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        agregarAlCarrito(producto);
-                      }}
-                    >
-                      Añadir al Carrito
-                    </button>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-
-        {hasMore && (
-          <div className="text-center mt-4">
-            <button
-              className="btn btnnn-primary"
-              onClick={() => setOffset((prevOffset) => prevOffset + limit)}
-            >
-              Mostrar más
-            </button>
+            ))}
           </div>
-        )}
-      </div>
-      <CustomModal
-  isOpen={modalIsOpen}
-  closeModal={closeModal}
-  product={selectedProduct}
-/>
 
+          {hasMore && (
+            <div className="text-center mt-4">
+              <button
+                className="btn btnnn-primary"
+                onClick={() => setOffset((prevOffset) => prevOffset + limit)}
+              >
+                Mostrar más
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <Preload />
+      )}
+      <CustomModal
+        isOpen={modalIsOpen}
+        closeModal={closeModal}
+        product={selectedProduct}
+      />
     </>
   );
 }

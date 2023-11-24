@@ -1,0 +1,25 @@
+
+.preload{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin: 80px 0 40px;
+}
+
+  .preloader__msg {
+	font-size: 24px;
+	margin: 5px 0;
+	opacity: 0; /* Inicialmente oculto */
+	animation: fadeInOut 1.5s ease-in-out infinite; /* Animación de parpadeo */
+	color: rgb(173, 173, 238);
+  }
+  
+  /* Animación de parpadeo */
+  @keyframes fadeInOut {
+	0%, 100% {
+	  opacity: 0;
+	}
+	50% {
+	  opacity: 1;
+	}
+  }

@@ -24,6 +24,7 @@ import 'font-awesome/css/font-awesome.min.css';
 import PagoExitoso from "./components/Checkout/exito";
 import PagoPendiente from "./components/Checkout/pendiente";
 import PagoRechazado from "./components/Checkout/rechazado";
+import Preload from "./components/Preload";
 
 function App() {
   function showAlert(message, type) {
@@ -147,6 +148,7 @@ function App() {
     <Navegacion />
     
     <Routes>
+    <Route path="/preload" element={<Preload />} />
       <Route path="/" element={<Inicio  />} />
       
         <Route
