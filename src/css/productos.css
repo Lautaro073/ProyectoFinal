@@ -183,11 +183,7 @@ button.btnn:hover {
 .card img {
   height: 250px;
 }
-@media (min-width: 991px) {
-  .card img {
-    height: 500px;
-  }
-}
+
 
 
 /* Estilos para el menú desplegable más pequeño */
@@ -210,4 +206,9 @@ button.btnn:hover {
 .select-container select:focus {
   background-color: #000; /* Color de fondo cuando el menú está enfocado */
   color: #fff;
+}
+@media (min-width: 991px) {
+  .card img {
+    height: 500px;
+  }
 }

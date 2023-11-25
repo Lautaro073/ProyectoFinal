@@ -1,39 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import "../../css/CustomModal.css";
 import { useCarrito } from "../../Context/CarritoContext";
 
 const CustomModal = ({ isOpen, closeModal, product }) => {
-  function showAlert(message, type) {
-    const alertDiv = document.createElement("div");
-    alertDiv.className = `alert-custom alert-${type}`;
-    alertDiv.textContent = message;
-
-    document.body.appendChild(alertDiv);
-
-    // Dar un pequeño tiempo para que la alerta inicialice y luego agregar la clase 'show'
-    setTimeout(() => {
-      alertDiv.classList.add("show");
-    }, 10);
-
-    // Después de 3 segundos, remover la alerta
-    setTimeout(() => {
-      alertDiv.classList.remove("show");
-      // Esperamos que termine la transición de salida y luego eliminamos el elemento del DOM
-      setTimeout(() => {
-        alertDiv.remove();
-      }, 310); // 10 ms adicionales para asegurarnos de que la transición ha terminado
-    }, 3000);
-  }
-
+  const { agregarAlCarrito, loadingMessage } = useCarrito();
   const [talleSeleccionado, setTalleSeleccionado] = useState("");
-  const { agregarAlCarrito } = useCarrito();
 
   const handleAgregarAlCarrito = () => {
     if (product && talleSeleccionado) {
       agregarAlCarrito({ ...product, talleSeleccionado }, 1);
       setTalleSeleccionado("");
-      //closeModal();
+      // closeModal(); // Si quieres cerrar el modal al agregar al carrito
     } else {
       showAlert(
         "Por favor, selecciona un talle antes de agregar al carrito.",
@@ -45,6 +23,32 @@ const CustomModal = ({ isOpen, closeModal, product }) => {
   const handleTalleChange = (e) => {
     setTalleSeleccionado(e.target.value);
   };
+
+  useEffect(() => {
+    if (loadingMessage) {
+      showAlert(loadingMessage, "loading");
+    }
+  }, [loadingMessage]);
+
+  function showAlert(message, type) {
+    const alertDiv = document.createElement("div");
+    alertDiv.className = `alert-custom alert-${type}`;
+    alertDiv.textContent = message;
+
+    document.body.appendChild(alertDiv);
+
+    setTimeout(() => {
+      alertDiv.classList.add("show");
+    }, 10);
+
+    setTimeout(() => {
+      alertDiv.classList.remove("show");
+
+      setTimeout(() => {
+        alertDiv.remove();
+      }, 310);
+    }, 3000);
+  }
 
   return (
     <Modal

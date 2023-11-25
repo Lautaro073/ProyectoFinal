@@ -7,7 +7,7 @@ import notFound from '../../assets/imagen not found.png';
 import Preload from "../../components/Preload/index"; // Asegúrate de importar el componente Preload
 
 function ProductosPorCategoria() {
-  const { agregarAlCarrito } = useCarrito();
+  const { agregarAlCarrito, loadingMessage } = useCarrito();
   const params = useParams();
   const categoriaNombre = params.categoria;
 
@@ -44,6 +44,32 @@ function ProductosPorCategoria() {
     setSelectedProduct(null);
     setModalIsOpen(false);
   };
+
+  useEffect(() => {
+    if (loadingMessage) {
+      showAlert(loadingMessage, "loading");
+    }
+  }, [loadingMessage]);
+
+  function showAlert(message, type) {
+    const alertDiv = document.createElement("div");
+    alertDiv.className = `alert-custom alert-${type}`;
+    alertDiv.textContent = message;
+
+    document.body.appendChild(alertDiv);
+
+    setTimeout(() => {
+      alertDiv.classList.add("show");
+    }, 10);
+
+    setTimeout(() => {
+      alertDiv.classList.remove("show");
+
+      setTimeout(() => {
+        alertDiv.remove();
+      }, 310);
+    }, 3000);
+  }
 
   return (
     <>
@@ -100,20 +126,20 @@ function ProductosPorCategoria() {
                             </select>
                           </div>
                           <button
-                        className="btnn btn-primary"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          agregarAlCarrito(producto);
-                          const nuevosProductos = productos.map((p) =>
-                            p.id_producto === producto.id_producto
-                              ? { ...p, talleSeleccionado: "" }
-                              : p
-                          );
-                          setProductos(nuevosProductos);
-                        }}
-                      >
-                        Añadir al Carrito
-                      </button>
+                            className="btnn btn-primary"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              agregarAlCarrito(producto);
+                              const nuevosProductos = productos.map((p) =>
+                                p.id_producto === producto.id_producto
+                                  ? { ...p, talleSeleccionado: "" }
+                                  : p
+                              );
+                              setProductos(nuevosProductos);
+                            }}
+                          >
+                            Añadir al Carrito
+                          </button>
                         </div>
                       </div>
                     </div>

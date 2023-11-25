@@ -5,7 +5,7 @@ import CustomModal from '../../components/Inicio/CustomModal';
 import Preload from "../../components/Preload/index";
 
 function SearchPage() {
-  const { agregarAlCarrito } = useCarrito();
+  const { agregarAlCarrito, loadingMessage } = useCarrito();
   const [productos, setProductos] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -19,20 +19,24 @@ function SearchPage() {
 
     document.body.appendChild(alertDiv);
 
-    // Dar un pequeño tiempo para que la alerta inicialice y luego agregar la clase 'show'
     setTimeout(() => {
         alertDiv.classList.add('show');
     }, 10);
 
-    // Después de 3 segundos, remover la alerta
     setTimeout(() => {
         alertDiv.classList.remove('show');
-        // Esperamos que termine la transición de salida y luego eliminamos el elemento del DOM
+
         setTimeout(() => {
             alertDiv.remove();
-        }, 310); // 10 ms adicionales para asegurarnos de que la transición ha terminado
+        }, 310);
     }, 3000);
   }
+
+  useEffect(() => {
+    if (loadingMessage) {
+      showAlert(loadingMessage, "loading");
+    }
+  }, [loadingMessage]);
 
   useEffect(() => {
     axios
@@ -40,7 +44,7 @@ function SearchPage() {
       .then((response) => {
         const productosConTalle = response.data.map((producto) => ({
           ...producto,
-          tallesDisponibles: producto.talle.split(","), // Suponiendo que la respuesta es un string separado por comas
+          tallesDisponibles: producto.talle.split(","), 
           talleSeleccionado: ""
         }));
         setProductos(productosConTalle);
@@ -48,7 +52,6 @@ function SearchPage() {
       })
       .catch((error) => {
         console.error("Error en la búsqueda:", error);
-        // Manejar el error según sea necesario
       });
   }, [searchQuery]);
 
@@ -111,20 +114,20 @@ function SearchPage() {
                             </select>
                           </div>
                           <button
-                        className="btnn btn-primary"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          agregarAlCarrito(producto);
-                          const nuevosProductos = productos.map((p) =>
-                            p.id_producto === producto.id_producto
-                              ? { ...p, talleSeleccionado: "" }
-                              : p
-                          );
-                          setProductos(nuevosProductos);
-                        }}
-                      >
-                        Añadir al Carrito
-                      </button>
+                            className="btnn btn-primary"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              agregarAlCarrito(producto);
+                              const nuevosProductos = productos.map((p) =>
+                                p.id_producto === producto.id_producto
+                                  ? { ...p, talleSeleccionado: "" }
+                                  : p
+                              );
+                              setProductos(nuevosProductos);
+                            }}
+                          >
+                            Añadir al Carrito
+                          </button>
                         </div>
                       </div>
                     </div>
