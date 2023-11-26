@@ -19,6 +19,13 @@ function Footer() {
           >
             <i className="fab fa-instagram"></i>
           </a>
+          <a
+            href="https://wa.me/+5493865575688"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i className="fab fa-whatsapp"></i>
+          </a>
         </div>
         <p className="copyright-text">
           &copy; {new Date().getFullYear()} DevWeb. Todos

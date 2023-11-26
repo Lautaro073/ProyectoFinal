@@ -4,23 +4,24 @@ const db = require('../database'); // Asumiendo que ya tienes una conexión a tu
 const router = express.Router();
 
 router.post('/', async (req, res) => {
-    const { nombreCompleto, direccion, telefono, email } = req.body;
+    const {
+        nombre, apellido, dni, telefono, correo,
+        direccion, ciudad, provincia, codigo_postal, referenciaDeEntrega
+    } = req.body;
 
-    // Aquí es donde manejas el proceso de checkout. Dependiendo de tu sistema, esto puede implicar:
-    // 1. Crear una nueva entrada en tu base de datos para el pedido.
-    // 2. Enviar un correo de confirmación al cliente.
-    // 3. Reducir el stock de los productos comprados.
-    // 4. Cualquier otro proceso que necesites manejar.
+    // Aquí manejas el proceso de checkout, incluyendo la inserción en la base de datos.
 
     try {
-        // Ejemplo: Crear una nueva entrada en la base de datos para el pedido.
-        const [result] = await db.query('INSERT INTO pedidos (nombreCompleto, direccion, telefono, email) VALUES (?, ?, ?, ?)', [nombreCompleto, direccion, telefono, email]);
+        // Crear una nueva entrada en la tabla checkout.
+        const query = 'INSERT INTO checkout (nombre, apellido, dni, telefono, correo, direccion, ciudad, provincia, codigo_postal, referenciaDeEntrega) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const values = [nombre, apellido, dni, telefono, correo, direccion, ciudad, provincia, codigo_postal, referenciaDeEntrega];
+        
+        const [result] = await db.query(query, values);
 
         if (result.affectedRows > 0) {
-            // Todo fue bien, así que enviamos una respuesta positiva.
-            res.status(200).json({ message: "Pedido registrado con éxito." });
+            res.status(200).json({ message: "Checkout realizado con éxito." });
         } else {
-            throw new Error('El pedido no pudo ser registrado.');
+            throw new Error('El proceso de checkout no pudo ser completado.');
         }
     } catch (error) {
         console.error("Error al procesar el checkout:", error);

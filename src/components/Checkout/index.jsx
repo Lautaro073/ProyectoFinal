@@ -1,30 +1,59 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function Checkout() {
-    const [formaEntrega, setFormaEntrega] = useState('retiro'); // Opción por defecto
-
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert-custom alert-${type}`;
+        alertDiv.textContent = message;
+      
+        document.body.appendChild(alertDiv);
+      
+        setTimeout(() => {
+          alertDiv.classList.add('show');
+        }, 10);
+      
+        setTimeout(() => {
+          alertDiv.classList.remove('show');
+      
+          setTimeout(() => {
+            alertDiv.remove();
+          }, 310);
+        }, 3000);
+      }
+    
+    
+    const [formaEntrega, setFormaEntrega] = useState('retiro');
+    const navigate = useNavigate();
     const handleCheckout = async (event) => {
         event.preventDefault();
 
         const formData = new FormData(event.target);
         const checkoutData = {
-            nombreCompleto: formData.get('nombreCompleto'),
-            direccion: formaEntrega === 'envio' ? formData.get('direccionEnvio') : 'Local', // Si es envío, toma la dirección; si es retiro, pon "Local"
+            nombre: formData.get('nombre'),
+            apellido: formData.get('apellido'),
+            dni: formData.get('dni'),
             telefono: formData.get('numeroTelefono'),
-            email: formData.get('correoElectronico'),
-            carritoId: localStorage.getItem('carritoId'),
-            formaEntrega: formaEntrega // Agrega la forma de entrega al objeto checkoutData
+            correo: formData.get('correoElectronico'),
+            direccion: formaEntrega === 'envio' ? formData.get('direccionEnvio') : 'Local',
+            ciudad: formData.get('ciudad'),
+            provincia: formData.get('provincia'),
+            codigo_postal: formData.get('codigoPostal'),
+            referenciaDeEntrega: formaEntrega,
+            carritoId: localStorage.getItem('carritoId')
         };
 
         try {
             const response = await axios.post('checkout', checkoutData);
             if (response.status === 200) {
-                alert('Compra realizada con éxito!');
+                showAlert('Compra realizada con éxito!', "success");
+                navigate("/checkout/exito")
                 localStorage.removeItem('carritoId');
             }
         } catch (error) {
-            alert('Ocurrió un error al realizar la compra. Por favor intenta nuevamente.');
+            console.log(error)
+            showAlert('Ocurrió un error al realizar la compra. Por favor intenta nuevamente.', 'error');
         }
     };
 
@@ -33,14 +62,30 @@ function Checkout() {
             <h2>Realizar Compra</h2>
             <form onSubmit={handleCheckout}>
                 <div className="mb-3">
-                    <label htmlFor="nombreCompleto" className="form-label">Nombre completo</label>
-                    <input type="text" className="form-control" id="nombreCompleto" name="nombreCompleto" placeholder="Nombre completo" required />
+                    <label htmlFor="nombre" className="form-label">Nombre</label>
+                    <input type="text" className="form-control" id="nombre" name="nombre" required />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="formaEntrega" className="form-label">Forma de entrega</label>
+                    <label htmlFor="apellido" className="form-label">Apellido</label>
+                    <input type="text" className="form-control" id="apellido" name="apellido" required />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="dni" className="form-label">DNI</label>
+                    <input type="text" className="form-control" id="dni" name="dni" required />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="numeroTelefono" className="form-label">Número de teléfono</label>
+                    <input type="text" className="form-control" id="numeroTelefono" name="numeroTelefono" placeholder="Número de teléfono" required />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="correoElectronico" className="form-label">Correo electrónico para confirmación</label>
+                    <input type="email" className="form-control" id="correoElectronico" name="correoElectronico" placeholder="Correo electrónico para confirmación" required />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="formaEntrega" className="form-label bg-black">Forma de entrega</label>
                     <select className="form-control" id="formaEntrega" name="formaEntrega" onChange={(e) => setFormaEntrega(e.target.value)} required>
-                        <option value="retiro">Retiro en local</option>
-                        <option value="envio">Envío a domicilio</option>
+                        <option className='bg-black' value="retiro">Retiro en local</option>
+                        <option className='bg-black' value="envio">Envío a domicilio</option>
                     </select>
                 </div>
                 {formaEntrega === 'envio' && (
@@ -50,14 +95,18 @@ function Checkout() {
                     </div>
                 )}
                 <div className="mb-3">
-                    <label htmlFor="numeroTelefono" className="form-label">Número de teléfono</label>
-                    <input type="text" className="form-control" id="numeroTelefono" name="numeroTelefono" placeholder="Número de teléfono" required />
+                    <label htmlFor="ciudad" className="form-label">Ciudad</label>
+                    <input type="text" className="form-control" id="ciudad" name="ciudad" required />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="correoElectronico" className="form-label">Correo electrónico para confirmación</label>
-                    <input type="email" className="form-control" id="correoElectronico" name="correoElectronico" placeholder="Correo electrónico para confirmación" required />
+                    <label htmlFor="provincia" className="form-label">Provincia</label>
+                    <input type="text" className="form-control" id="provincia" name="provincia" required />
                 </div>
-                <button type="submit" className="btn btn-primary">Realizar Compra</button>
+                <div className="mb-3">
+                    <label htmlFor="codigoPostal" className="form-label">Código Postal</label>
+                    <input type="text" className="form-control" id="codigoPostal" name="codigoPostal" required />
+                </div>
+                <button type="submit" className="btn btn-primary mb-4">Realizar Compra</button>
             </form>
         </div>
     );

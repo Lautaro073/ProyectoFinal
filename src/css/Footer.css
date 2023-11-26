@@ -57,6 +57,9 @@ body {
 .social-icons a[href*="instagram"]:hover {
     color: #E4405F !important;
 }
+.social-icons a[href*="whatsapp"]:hover {
+    color: #25D366 !important;
+}
 .main-container {
     display: flex;
     flex-direction: column;
@@ -92,6 +95,16 @@ body {
     color: #E4405F;  /* Color de Instagram al hacer hover */
     transform: translateY(-3px);  /* Efecto levantamiento al hacer hover */
 }
+/* Estilo base para el ícono de Instagram */
+.fab.fa-whatsapp {
+    color: white;  /* Color base */
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.fab.fa-whatsapp:hover {
+    color: #25D366;  /* Color de Instagram al hacer hover */
+    transform: translateY(-3px);  /* Efecto levantamiento al hacer hover */
+}
 @media only screen and (max-width: 768px) {
     /* Estilos para el ícono de Facebook en móvil */
     .fab.fa-facebook-square {
@@ -110,6 +123,14 @@ body {
     }
 
     .fab.fa-instagram:hover {
+        transform: scale(1.1);  /* Efecto zoom al hacer hover, puedes ajustarlo según prefieras */
+    }
+    .fab.fa-whatsapp {
+        font-size: 40px;  /* Reducir el tamaño del ícono en dispositivos móviles */
+        margin: 0 10px;   /* Ajustar el margen si es necesario */
+    }
+
+    .fab.fa-whatsapp:hover {
         transform: scale(1.1);  /* Efecto zoom al hacer hover, puedes ajustarlo según prefieras */
     }
 }

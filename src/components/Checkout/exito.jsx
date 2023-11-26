@@ -10,6 +10,7 @@ const PagoExitoso = () => {
         <div className="content-container">
           <h2 className="titulo-exitoso">Pago Exitoso</h2>
           <p className="mensaje exito">¡Tu pago ha sido procesado con éxito! Gracias por tu compra.</p>
+          <p className="mensaje exito">Nos comunicaremos contigo cuando el pedido sea enviado.</p>
         </div>
       </div>
       </div>

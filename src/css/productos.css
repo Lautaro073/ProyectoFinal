@@ -104,9 +104,7 @@ button.btnn:hover {
   background-color: #e43f00;
 }
 
-.fa-whatsapp {
-  margin-right: 5px; /* Espacio a la derecha del ícono */
-}
+
 
 /* Nuevos estilos para el botón de WhatsApp */
 .btn-success {
@@ -122,11 +120,7 @@ button.btnn:hover {
   transform: scale(1.1); /* Efecto de "ampliación" en hover */
 }
 
-.btn-success .fa-whatsapp {
-  color: #25D366; /* Color verde de WhatsApp */
-  font-size: 24px; /* Tamaño del ícono */
-  transition: transform 0.3s ease; /* Suaviza la transición de transform */
-}
+
 
 
 .btn-whatsapp {
@@ -164,9 +158,7 @@ button.btnn:hover {
   background-color: #128C7E; /* Un tono más oscuro para el hover */
 }
 
-.btn-confirm i.fa-whatsapp {
-  margin-right: 5px;
-}
+
 
 .btnnn-primary {
   background-color: #FF4500; /* naranja brillante*/
