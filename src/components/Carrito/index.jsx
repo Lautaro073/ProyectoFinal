@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 // Asegúrate de importar correctamente el componente PaymentButton
 import { useCarrito } from "../../Context/CarritoContext";
-import Preload from "../../components/Preload/index"
+import Preload from "../../components/Preload/index";
 import "../../config";
 
 function Carrito() {
@@ -143,31 +143,37 @@ function Carrito() {
     );
   };
 
+  const [paymentUrl, setPaymentUrl] = useState("");
+
+  const handlePayment = async () => {
+    try {
+      // Concatena los nombres de todos los productos en el carrito
+      const productDetails = productos
+        .map((producto) => `${producto.nombre} (Talle: ${producto.talle})`)
+        .join(", ");
+
+      const response = await axios.post("create_preference", {
+        title: `Compra de: ${productDetails}`, // Incluye los nombres de los productos en el título
+        quantity: 1,
+        price: calcularTotal(),
+      });
+
+      setPaymentUrl(response.data);
+    } catch (error) {
+      console.log("Error al crear la preferencia", error);
+    }
+  };
   useEffect(() => {
     // Verifica si el parámetro "status" está presente en la URL
     const queryParams = new URLSearchParams(window.location.search);
     const paymentStatus = queryParams.get("status");
-
+  
     if (paymentStatus) {
-      if (paymentStatus === "success") {
-        navigate("/checkout");
-      } else if (paymentStatus === "pending") {
-        navigate("/checkout/pendiente");
-      } else if (paymentStatus === "failure") {
-        navigate("/checkout/error");
-      } else {
-        navigate("/checkout/error");
-      }
+      if (paymentStatus === null) {
+        navigate("/carrito");
+      } 
     }
   }, []);
-  const generarLinkWhatsApp = () => {
-    const numero = "+5493865524304"; // Cambia por el número al que quieres enviar el mensaje
-    const base = "https://api.whatsapp.com/send?phone=";
-    const mensaje = `Hola! Me gustaría comprar: ${productos
-      .map((producto) => `${producto.nombre} (x${producto.cantidad})`)
-      .join(", ")}. Total a pagar: ${calcularTotal()} $`;
-    return `${base}${numero}&text=${encodeURIComponent(mensaje)}`;
-  };
   return (
     <div className="main-container">
       <div className="container mt-4">
@@ -233,16 +239,21 @@ function Carrito() {
         )}
 
         {productos.length > 0 && (
-          <div className="mt-3 text-center">
-            <a
-              className="btn btn-lg btn-confirm"
-              href={generarLinkWhatsApp()}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <i className="fa fa-whatsapp"></i> Confirmar pedido
-            </a>
-            <div className="mt-2">Total del carrito: ${calcularTotal()}</div>
+          <div className="mt-3">
+            {paymentUrl ? (
+              <a
+                className="btn btn-primary"
+                href={paymentUrl}
+                rel="noopener noreferrer"
+              >
+                Pagar con Mercado Pago
+              </a>
+            ) : (
+              <button className="btnn btn-principal" onClick={handlePayment}>
+                {" "}
+                Proceder al Pago - Total: ${calcularTotal()}
+              </button>
+            )}
           </div>
         )}
       </div>

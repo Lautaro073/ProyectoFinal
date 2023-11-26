@@ -3,13 +3,15 @@ const fileUpload = require('express-fileupload');
 const cors = require('cors');
 const morgan = require('morgan');
 const fs = require('fs');
-
+const mercadopago = require('mercadopago');
 const dotenv = require('dotenv');
-
+// test_user_1975908777@testuser.com
 //.env
 dotenv.config()
 
-
+mercadopago.configure({
+    access_token: 'process.env.MERCADOPAGO_ACCESS_TOKEN'
+  });
 
 // Importaciones de tus rutas
 const productoRoutes = require('./routes/productos');
@@ -19,18 +21,11 @@ const carritoRoutes = require('./routes/carrito');
 const checkoutRouter = require('./routes/checkout');
 const sessionRoutes = require('./routes/session');
 const categoriaRoutes = require('./routes/categorias');
-
+const mp =require('./routes/mp')
 const path = require('path');
 
 const app = express();
 
-// Comprueba y crea el directorio para imágenes si no existe
-const dirPath = 'public/assets/imgProductos';
-if (!fs.existsSync(dirPath)){
-    fs.mkdirSync(dirPath, { recursive: true });
-}
-
-app.use('/assets/imgProductos', express.static(path.join(__dirname, 'public/assets/imgProductos')));
 
 // Configuraciones y middlewares
 app.use(morgan('dev')); 
@@ -51,7 +46,7 @@ app.use('/api/carrito', carritoRoutes);
 app.use('/api/checkout', checkoutRouter); 
 app.use('/api/session', sessionRoutes);
 app.use('/api/categorias', categoriaRoutes);
-
+app.use('/api/create_preference', mp)
 // Iniciar el servidor
 const PORT = 3000;
 app.listen(PORT, () => {

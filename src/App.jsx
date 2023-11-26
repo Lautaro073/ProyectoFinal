@@ -89,59 +89,6 @@ function App() {
     }
 }, []);
 
-
-  /*useEffect(() => {
-    const sessionId = localStorage.getItem('sessionId');
-    
-    console.log('Sesión ID actual:', sessionId);
-    if (!sessionId) {
-        axios.get('session/start-session')
-            .then(response => {
-                const newSessionId = response.data.sessionId;
-                if (newSessionId) {
-                    // Si no recibimos un sessionId válido, crea un nuevo carrito
-                    axios.post('session/crear')
-                        .then(response => {
-                            const carritoId = response.data.id_carrito;
-                            if (carritoId) {
-                                localStorage.setItem('sessionId', carritoId);
-                            } else {
-                                console.error('Error al obtener el ID del carrito');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error al crear un nuevo carrito:', error);
-                        });
-                } else {
-                    localStorage.setItem('sessionId', newSessionId);
-                }
-            })
-            .catch(error => {
-                console.error('Error al iniciar la sesión:', error);
-            });
-    }
-  }, []);*/
-  const agregarAlCarrito = async (id_producto, cantidad = 1) => {
-    try {
-      const sessionId = localStorage.getItem("sessionId");
-
-      // Si por alguna razón no tienes un sessionId, lo mejor sería parar la función aquí.
-      if (!sessionId) {
-        showAlert("Error al obtener la sesión. Por favor, refresca la página.", "error");
-        return;
-      }
-      console.log(`Enviando petición al carrito con ID: ${sessionId}`);
-
-      await axios.post(`carrito/${sessionId}`, {
-        id_producto,
-        cantidad,
-      });
-
-      showAlert("Producto agregado al carrito!", "success");
-    } catch (error) {
-      console.error("Error al agregar al carrito:", "error");
-    }
-  };
   return (
     <CarritoProvider>
     <Router>
