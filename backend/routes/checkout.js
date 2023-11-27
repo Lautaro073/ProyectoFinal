@@ -59,6 +59,24 @@ router.post("/", async (req, res) => {
           referenciaDeEntrega_cliente: referenciaDeEntrega,
         },
       });
+      await sendEmail({
+        to: correo,
+        from: "lautarojimenezads@gmail.com",
+        subject: "Confirmación de tu pedido",
+        templateId: "d-685c91d16e9e4d68b982829b3e09a8f3",
+        dynamicTemplateData: {
+          nombre_cliente: nombre,
+          apellido_cliente: apellido,
+          dni_cliente: dni,
+          correo_cliente: correo,
+          telefono_cliente: telefono,
+          direccion_cliente: direccion,
+          ciudad_cliente: ciudad,
+          provincia_cliente: provincia,
+          codigo_postal_cliente: codigo_postal,
+          referenciaDeEntrega_cliente: referenciaDeEntrega,
+        },
+      });
 
       res
         .status(200)

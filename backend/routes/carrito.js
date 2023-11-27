@@ -38,40 +38,60 @@ router.get("/:id_carrito", async (req, res) => {
 router.post("/:id_carrito", async (req, res) => {
   try {
     const { id_producto, cantidad, talle } = req.body;
-
-    // Verifica que id_producto, cantidad y talle estén presentes
     if (!id_producto || cantidad <= 0 || !talle) {
       return res.status(400).send("Datos inválidos");
     }
 
-    // Verifica si el mismo producto con el mismo talle ya existe en el carrito
-    const [existingItems] = await db.query(
-      "SELECT * FROM items_carrito WHERE id_carrito = ? AND id_producto = ? AND talle = ?",
-      [req.params.id_carrito, id_producto, talle]
-    );
-
-    if (existingItems.length > 0) {
-      // Producto con el mismo talle ya existe, actualiza la cantidad
-      const newCantidad = existingItems[0].cantidad + cantidad;
-      await db.query(
-        "UPDATE items_carrito SET cantidad = ? WHERE id_carrito = ? AND id_producto = ? AND talle = ?",
-        [newCantidad, req.params.id_carrito, id_producto, talle]
-      );
-      res.send("Cantidad del producto actualizada en el carrito");
-    } else {
-      // Nuevo producto o mismo producto con diferente talle
-      await db.query(
-        "INSERT INTO items_carrito (id_carrito, id_producto, cantidad, talle) VALUES (?, ?, ?, ?)",
-        [req.params.id_carrito, id_producto, cantidad, talle]
-      );
-      res.status(201).send("Producto agregado al carrito");
-    }
+    // Intenta agregar o actualizar el producto en el carrito
+    await agregarOActualizarProducto(req.params.id_carrito, id_producto, cantidad, talle);
+    res.status(201).send("Producto agregado o actualizado en el carrito");
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error al agregar o actualizar el producto en el carrito");
+
+    // Manejo específico del error de clave foránea
+    if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+      try {
+        await crearCarrito(req.params.id_carrito, id_producto, cantidad, talle); // Asegúrate de pasar los parámetros necesarios
+        await agregarOActualizarProducto(req.params.id_carrito, id_producto, cantidad, talle);
+        res.status(201).send("Producto agregado o actualizado en el carrito después de crear el carrito");
+      } catch (errorCreacion) {
+        console.error(errorCreacion);
+        res.status(500).send("Error al crear el carrito y agregar el producto");
+      }
+    } else {
+      res.status(500).send("Error al agregar o actualizar el producto en el carrito");
+    }
   }
 });
 
+async function agregarOActualizarProducto(id_carrito, id_producto, cantidad, talle) {
+  const [existingItems] = await db.query(
+    "SELECT * FROM items_carrito WHERE id_carrito = ? AND id_producto = ? AND talle = ?",
+    [id_carrito, id_producto, talle]
+  );
+
+  if (existingItems.length > 0) {
+    // Producto con el mismo talle ya existe, actualiza la cantidad
+    const newCantidad = existingItems[0].cantidad + cantidad;
+    await db.query(
+      "UPDATE items_carrito SET cantidad = ? WHERE id_carrito = ? AND id_producto = ? AND talle = ?",
+      [newCantidad, id_carrito, id_producto, talle]
+    );
+  } else {
+    // Nuevo producto o mismo producto con diferente talle
+    await db.query(
+      "INSERT INTO items_carrito (id_carrito, id_producto, cantidad, talle) VALUES (?, ?, ?, ?)",
+      [id_carrito, id_producto, cantidad, talle]
+    );
+  }
+}
+async function crearCarrito(id_carrito) {
+  // Lógica para insertar un nuevo carrito en la base de datos
+  // Debes reemplazar esta consulta SQL con la lógica que corresponda a tu aplicación
+  await db.query("INSERT INTO carrito (id_carrito) VALUES (?)", [id_carrito]);
+}
+
+// El resto de tu código de router.post("/:id_carrito", async (req, res) => { ...
 
 
 // Actualizar cantidad de producto en el carrito

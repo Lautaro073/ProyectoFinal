@@ -151,8 +151,12 @@ function Carrito() {
       const productDetails = productos
         .map((producto) => `${producto.nombre} (Talle: ${producto.talle})`)
         .join(", ");
-
-      const response = await axios.post("create_preference", {
+        const total = calcularTotal();
+     const checkoutData = {
+    // ...todos los otros datos necesarios para el checkout...
+    total_pedido: total, // Asegúrate de enviar el total calculado
+  };
+   const response = await axios.post("create_preference", {
         title: `Compra de: ${productDetails}`, // Incluye los nombres de los productos en el título
         quantity: 1,
         price: calcularTotal(),
@@ -163,6 +167,9 @@ function Carrito() {
       console.log("Error al crear la preferencia", error);
     }
   };
+  
+
+
   useEffect(() => {
     // Verifica si el parámetro "status" está presente en la URL
     const queryParams = new URLSearchParams(window.location.search);

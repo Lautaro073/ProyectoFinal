@@ -16,11 +16,7 @@
   box-shadow: none;
   border: 1px solid #000;
 }
-/* Mostrar siempre el botón toggler */
-.custom-navbar .navbar-toggler {
-  display: block !important;
-  margin-right: 10px;
-}
+
 
 .form-inputs button {
   position: absolute;
@@ -95,14 +91,20 @@
 .carrito-desktop {
   display: flex;
 }
-
+.custom-navbar .navbar-toggler {
+ 
+  margin-right: 10px;
+}
 /* Estilos de respuesta para pantallas pequeñas */
 @media (max-width: 768px) {
   .form-inputs i {
     top: 10px;
     font-size: 18px;
   }
-
+  .custom-navbar .navbar-toggler {
+    display: block !important;
+    margin-right: 10px;
+  }
   .btn-carrito {
     display: flex;
   }
@@ -110,4 +112,10 @@
   .carrito-desktop {
     display: none;
   }
+}
+/* Estilos de respuesta para pantallas  grandes */
+@media (width: 991px) {
+  .custom-navbar .navbar-toggler {
+  display: none !important;
+}
 }

@@ -52,7 +52,7 @@ function Inicio() {
         if (response.data[0]) {
           setCategoriaNombre(response.data[0].nombre_categoria);
         } else {
-          setCategoriaNombre("Categoría sin productos");
+          setCategoriaNombre("Sin productos");
         }
 
         setCargaCompleta(true); // Establecer cargaCompleta después de obtener los productos
