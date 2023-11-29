@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { useCarrito } from "../../Context/CarritoContext";
-import CustomModal from '../../components/Inicio/CustomModal'; // Reemplaza 'tu/ruta/al/CustomModal' con la ruta correcta
+import CustomModal from '../../components/Inicio/CustomModal';
 import notFound from '../../assets/imagen not found.png';
-import Preload from "../../components/Preload/index"; // Asegúrate de importar el componente Preload
+import Preload from "../../components/Preload/index";
 
 function ProductosPorCategoria() {
   const { agregarAlCarrito, loadingMessage } = useCarrito();
@@ -29,6 +29,7 @@ function ProductosPorCategoria() {
         setCargaCompleta(true);
       } catch (error) {
         console.error("Error al obtener los productos:", error);
+        setCargaCompleta(true); // Marcar la carga como completa incluso si hay un error
       }
     }
 
@@ -77,9 +78,9 @@ function ProductosPorCategoria() {
         <div className="container mt-5">
           <h2 className="mb-4 text-white">{categoriaNombre} disponibles:</h2>
           {cargaCompleta ? (
-            <div className="row">
-              {productos.length > 0 ? (
-                productos.map((producto) => (
+            productos.length > 0 ? (
+              <div className="row">
+                {productos.map((producto) => (
                   <div key={producto.id_producto} className="col-md-4 mb-4">
                     <div className="card" onClick={() => openModal(producto)}>
                       <div className="card-img-container">
@@ -136,6 +137,7 @@ function ProductosPorCategoria() {
                                   : p
                               );
                               setProductos(nuevosProductos);
+                              showAlert("Producto agregado", "success");
                             }}
                           >
                             Añadir al Carrito
@@ -144,14 +146,14 @@ function ProductosPorCategoria() {
                       </div>
                     </div>
                   </div>
-                ))
-              ) : (
-                <div className="col-12 text-center text-white">
-                  Por el momento no hay productos disponibles en la categoría{" "}
-                  {categoriaNombre}.
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="col-12 text-center text-white">
+                Por el momento no hay productos disponibles en la categoría{" "}
+                {categoriaNombre}.
+              </div>
+            )
           ) : (
             <Preload />
           )}

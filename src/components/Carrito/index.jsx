@@ -46,6 +46,8 @@ function Carrito() {
   useEffect(() => {
     cargarProductos();
   }, [cargarProductos]);
+
+
   const agregarProducto = async (productoId, talle) => {
     console.log("Producto ID:", productoId); // Agrega esta línea
     try {
@@ -84,6 +86,7 @@ function Carrito() {
       await actualizarCarrito();
       if (response.status === 201 || response.status === 200) {
         cargarProductos();
+        showAlert("Producto agregado", "success");
       }
     } catch (error) {
       console.error("Error al agregar producto:", error);
@@ -101,10 +104,10 @@ function Carrito() {
         console.error("Producto no encontrado:", productoId);
         return;
       }
-
+  
       let response;
-      // Usando la cantidad del producto para decidir si lo actualizamos o lo eliminamos.
       if (producto.cantidad > 1) {
+        // Si hay más de una unidad, simplemente reducimos la cantidad
         response = await axios.put(
           `carrito/${carritoId}/${productoId}/${talle}`,
           {
@@ -112,19 +115,22 @@ function Carrito() {
           }
         );
       } else {
+        // Si hay solo una unidad, eliminamos el producto del carrito
         response = await axios.delete(
           `carrito/${carritoId}/${productoId}/${talle}`
         );
       }
-
+      await actualizarCarrito();
       if (response.status === 200) {
         cargarProductos();
+        showAlert("Producto eliminado", "error");
       }
-      await actualizarCarrito();
+
     } catch (error) {
       console.error("Error al quitar producto:", error);
     }
   };
+  
 
   const verificarStock = async (productoId) => {
     if (!productoId) {
@@ -256,7 +262,7 @@ function Carrito() {
                 Pagar con Mercado Pago
               </a>
             ) : (
-              <button className="btnn btn-principal" onClick={handlePayment}>
+              <button className="btnn btn-principal" onClick={handlePayment} id="btn-pagar">
                 {" "}
                 Proceder al Pago - Total: ${calcularTotal()}
               </button>

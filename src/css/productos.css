@@ -104,8 +104,6 @@ button.btnn:hover {
   background-color: #e43f00;
 }
 
-
-
 /* Nuevos estilos para el botón de WhatsApp */
 .btn-success {
   background-color: transparent !important;
@@ -119,10 +117,6 @@ button.btnn:hover {
 .btn-success:hover {
   transform: scale(1.1); /* Efecto de "ampliación" en hover */
 }
-
-
-
-
 .btn-whatsapp {
   padding: 10px;
   border-radius: 50%;
@@ -158,8 +152,6 @@ button.btnn:hover {
   background-color: #128C7E; /* Un tono más oscuro para el hover */
 }
 
-
-
 .btnnn-primary {
   background-color: #FF4500; /* naranja brillante*/
   border: none;
@@ -172,10 +164,15 @@ button.btnn:hover {
 .btnnn-primary:hover {
   background-color: #FF6347; /* un naranja un poco más claro para el hover*/
 }
-.card img {
-  height: 250px;
+.mt-3{
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-
+#btn-pagar{
+  width: auto;
+  font-size: 16px;
+}
 
 
 /* Estilos para el menú desplegable más pequeño */
@@ -201,6 +198,6 @@ button.btnn:hover {
 }
 @media (min-width: 991px) {
   .card img {
-    height: 500px;
+  height: 200px;
   }
 }

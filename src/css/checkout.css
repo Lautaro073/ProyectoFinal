@@ -9,6 +9,8 @@
 }
 .estado-pago-container {
   width: 70%;
+  max-width: 600px;
+  margin: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -19,7 +21,12 @@
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   margin-bottom: 20px;
+  word-wrap: break-word;
+  overflow: hidden;
 }
+
+
+
 
 .banner-image {
   max-width: 100%;
@@ -40,6 +47,9 @@
 }
 .content-container .titulo-pendiente{
   color: rgb(255, 129, 11);
+}
+.pendiente a{
+  text-decoration: none;
 }
 .content-container .titulo-rechazado{
   color: rgb(236, 28, 28);
